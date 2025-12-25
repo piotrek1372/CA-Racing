@@ -1,0 +1,19 @@
+{
+    "menu_play": "PLAY",
+    "menu_options": "OPTIONS",
+    "menu_exit": "EXIT",
+    "menu_back": "BACK",
+    "slot_load": "LOAD GAME",
+    "slot_new": "NEW GAME",
+    "slot_prefix": "SLOT",
+    "title_main": "CA RACING",
+    "title_slots": "SELECT SLOT",
+    "hub_race": "RACE",
+    "hub_garage": "GARAGE",
+    "hub_shop": "SHOP",
+    "hub_settings": "SETTINGS",
+    "hub_main_menu": "MAIN MENU",
+    "info_driver": "DRIVER",
+    "info_money": "MONEY",
+    "msg_esc": "Press ESC to return"
+}

@@ -1,0 +1,19 @@
+{
+    "menu_play": "SPIELEN",
+    "menu_options": "OPTIONEN",
+    "menu_exit": "BEENDEN",
+    "menu_back": "ZURÜCK",
+    "slot_load": "LADEN",
+    "slot_new": "NEUES SPIEL",
+    "slot_prefix": "PLATZ",
+    "title_main": "CA RACING",
+    "title_slots": "SPEICHERPLATZ",
+    "hub_race": "RENNEN",
+    "hub_garage": "WERKSTATT",
+    "hub_shop": "LADEN",
+    "hub_settings": "EINSTELLUNGEN",
+    "hub_main_menu": "HAUPTMENÜ",
+    "info_driver": "FAHRER",
+    "info_money": "GELD",
+    "msg_esc": "Drücke ESC zum Zurückkehren"
+}

@@ -1,0 +1,19 @@
+{
+    "menu_play": "JUGAR",
+    "menu_options": "OPCIONES",
+    "menu_exit": "SALIR",
+    "menu_back": "ATRÁS",
+    "slot_load": "CARGAR",
+    "slot_new": "NUEVA PARTIDA",
+    "slot_prefix": "RANURA",
+    "title_main": "CA RACING",
+    "title_slots": "SELECCIONAR",
+    "hub_race": "CARRERA",
+    "hub_garage": "GARAJE",
+    "hub_shop": "TIENDA",
+    "hub_settings": "AJUSTES",
+    "hub_main_menu": "MENÚ PRINCIPAL",
+    "info_driver": "PILOTO",
+    "info_money": "DINERO",
+    "msg_esc": "Presiona ESC para volver"
+}
