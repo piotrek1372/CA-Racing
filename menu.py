@@ -16,7 +16,7 @@ class Button:
         self.text_color = TEXT_MAIN
         self.border_color = TEXT_DIM
         
-        # Size calculation (Performance optimization: calc once)
+        # Size calculation
         text_width, text_height = self.font.size(self.text)
         padding_x, padding_y = 30, 15
         self.width = text_width + padding_x
@@ -33,23 +33,19 @@ class Button:
         self.shadow_rect.x += 3
         self.shadow_rect.y += 3
 
-        # Prerender text (Performance optimization: render once)
+        # Prerender text
         self.text_surf = self.font.render(self.text, True, self.text_color)
         self.text_rect = self.text_surf.get_rect(center=self.rect.center)
 
     def draw(self, screen):
-        # Mouse interaction
         mouse_pos = pg.mouse.get_pos()
         is_hovered = self.rect.collidepoint(mouse_pos)
         current_color = self.color_hover if is_hovered else self.color_idle
         
-        # Draw shadow
+        # Draw shadow, body, border
         pg.draw.rect(screen, (15, 15, 20), self.shadow_rect, border_radius=8)
-        # Draw button body
         pg.draw.rect(screen, current_color, self.rect, border_radius=8)
-        # Draw border
         pg.draw.rect(screen, self.border_color, self.rect, 2, border_radius=8)
-        # Blit cached text
         screen.blit(self.text_surf, self.text_rect)
 
     def handle_event(self, event):
@@ -61,10 +57,8 @@ class Button:
 class Menu:
     def __init__(self, main_app):
         self.app = main_app
-        self.state = "main" # 'main' or 'saves'
+        self.state = "main"
         self.buttons = []
-        
-        # Font for title
         self.title_font = pg.font.SysFont('Consolas', 60, bold=True)
         self.init_main_menu()
 
@@ -82,16 +76,19 @@ class Menu:
         self.state = "saves"
         self.buttons = []
         
-        # Check slots status from Data Manager
+        # Check slots status
         slots_status = self.app.data_manager.check_save_slots()
         
         for i in range(1, 4):
             is_occupied = slots_status[i]
-            status_text = "LOAD" if is_occupied else "NEW GAME"
-            btn_text = f"SLOT {i} [{status_text}]"
             
-            # Color logic: Green for new game, Blue for load
-            color = ACCENT_BLUE if is_occupied else ACCENT_GREEN
+            # Text and Color logic
+            if is_occupied:
+                btn_text = f"SLOT {i} [LOAD GAME]"
+                color = ACCENT_BLUE  # Blue for Load
+            else:
+                btn_text = f"SLOT {i} [NEW GAME]"
+                color = ACCENT_GREEN # Green for New
             
             # Lambda to capture current index 'i'
             action = lambda slot=i: self.app.start_game_session(slot)
@@ -112,7 +109,7 @@ class Menu:
         screen.fill(BG_COLOR)
         
         # Draw Title
-        title_text = "SELECT SAVE" if self.state == "saves" else "CA RACING"
+        title_text = "SELECT SLOT" if self.state == "saves" else "CA RACING"
         title_surf = self.title_font.render(title_text, True, TEXT_MAIN)
         title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, 100))
         screen.blit(title_surf, title_rect)
