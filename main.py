@@ -5,7 +5,7 @@ from load_data import Data
 from load_assets import load_game_assets
 from menu import Menu, Button
 from player import Player
-from localization import LanguageManager # <--- IMPORT NOWY
+from localization import LanguageManager
 
 class GameSession:
     def __init__(self, main_app, slot_id):
@@ -15,7 +15,7 @@ class GameSession:
         self.screen = main_app.screen
         self.assets = main_app.assets
         self.data_manager = main_app.data_manager
-        self.lang = main_app.lang # <--- Skrót do managera języków
+        self.lang = main_app.lang
         
         self.game_db = self.data_manager.load_game_data()
         self.player_save_data = self.data_manager.load_player_state(slot_id)
@@ -28,7 +28,7 @@ class GameSession:
         self.buttons = []
         self.init_hub_ui()
         
-        print(f"[GAME] Session started. Player: {self.player.name}")
+        print(f"[GAME] Rozpoczęto sesję. Gracz: {self.player.name}")
 
     def init_hub_ui(self):
         self.buttons = []
@@ -36,7 +36,6 @@ class GameSession:
         start_y = 200
         gap_y = 70
         
-        # UŻYWAMY TERAZ KLUCZY Z JSONA
         options = [
             (self.lang.get("hub_race"), lambda: self.change_state('RACE'), ACCENT_GREEN),
             (self.lang.get("hub_garage"), lambda: self.change_state('GARAGE'), None),
@@ -48,8 +47,6 @@ class GameSession:
         for i, (text, action, color) in enumerate(options):
             pos = (center_x, start_y + i * gap_y)
             self.buttons.append(Button(text, pos, action, custom_color=color))
-
-    # ... (reszta metod bez zmian, tylko podmień napisy w draw_player_info i draw_placeholder) ...
 
     def change_state(self, new_state):
         self.state = new_state
@@ -76,19 +73,18 @@ class GameSession:
         if self.state == 'HUB':
             self.draw_hub()
         else:
-            # Placeholder translate
             self.draw_placeholder(f"{self.state} - {self.lang.get('msg_esc')}")
 
     def draw_player_info(self):
         pg.draw.rect(self.screen, PANEL_BG, (0, 0, SCREEN_WIDTH, 60))
         pg.draw.line(self.screen, ACCENT_BLUE, (0, 60), (SCREEN_WIDTH, 60), 2)
         
-        # Użycie tłumaczenia
         label = self.lang.get("info_driver")
         name_surf = self.font_ui.render(f"{label}: {self.player.name}", True, TEXT_MAIN)
         self.screen.blit(name_surf, (20, 18))
         
-        money_text = f"${self.player.money}"
+        money_label = self.lang.get("info_money")
+        money_text = f"{money_label}: ${self.player.money}"
         money_surf = self.font_ui.render(money_text, True, ACCENT_GOLD)
         money_rect = money_surf.get_rect(topright=(SCREEN_WIDTH - 20, 18))
         self.screen.blit(money_surf, money_rect)
@@ -97,6 +93,7 @@ class GameSession:
         for btn in self.buttons:
             btn.draw(self.screen)
         if 'cars' in self.assets and self.assets['cars']:
+            # Rysowanie auta (przykładowe)
             car_sprite = self.assets['cars'].subsurface((0, 0, 64, 64))
             car_scaled = pg.transform.scale(car_sprite, (128, 128))
             self.screen.blit(car_scaled, (100, 250))
@@ -115,8 +112,8 @@ class Main:
         self.running = True
         self.state = 'MENU'
         
-        # 1. Inicjalizacja Managera Języków (Zmień "pl" na "en", "de" itd. żeby testować)
-        self.lang = LanguageManager("pl") 
+        # 1. Inicjalizacja Języka (bez argumentu = auto-wykrywanie)
+        self.lang = LanguageManager() 
         
         try:
             self.assets = load_game_assets()
@@ -125,7 +122,7 @@ class Main:
             self.assets = {}
             
         self.data_manager = Data()
-        self.menu = Menu(self) # Menu teraz korzysta z self.lang
+        self.menu = Menu(self)
         self.game_session = None
 
     def start_game_session(self, slot_id):
