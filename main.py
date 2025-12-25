@@ -3,9 +3,15 @@ import background
 from menu import *
 from constants import *
 import player as p
+from load_data import Data
 
 def main():
     pg.init()
+    data_loader = Data()
+    game_db = data_loader.load_saves_template('game_data.json')
+    player_save = data_loader.load_saves_template('player_state.json')
+    if game_db and player_save:
+        print("Dane wczytane poprawnie!")
     bt_new_game = Button('Nowa Gra', 0, action=None)
     bt_read_game = Button('Wczytaj Grę', 1, action=None)
     bt_exit = Button('Wyjdź z gry', 2, lambda: pg.event.post(pg.event.Event(pg.QUIT)))
