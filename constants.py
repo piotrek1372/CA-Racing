@@ -2,5 +2,28 @@ import pygame as pg
 
 pg.init()
 
-s_width, s_height = pg.display.get_desktop_sizes()[0]
-screen = pg.display.set_mode((s_width, s_height))
+RESOLUTION = SCREEN_WIDTH, SCREEN_HEIGHT = pg.display.get_desktop_sizes()[0]
+SCREEN = pg.display.set_mode(RESOLUTION, pg.FULLSCREEN)
+
+FPS = 60
+
+BG_COLOR = (28, 31, 35)  
+
+PANEL_BG = (40, 44, 52)
+BUTTON_COLOR = (50, 54, 64)
+BUTTON_HOVER_COLOR = (70, 75, 90)
+BUTTON_BORDER = (200, 200, 200)
+
+TEXT_MAIN = (235, 235, 240)
+TEXT_DIM = (150, 155, 165)
+
+ACCENT_GREEN = (46, 204, 113)
+ACCENT_RED = (231, 76, 60)
+ACCENT_BLUE = (52, 152, 219)
+ACCENT_GOLD = (241, 196, 15)
+
+WHITE = TEXT_MAIN
+BLACK = BG_COLOR
+RED = ACCENT_RED
+GREEN = ACCENT_GREEN
+BLUE = ACCENT_BLUE

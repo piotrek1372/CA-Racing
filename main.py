@@ -1,33 +1,32 @@
 import pygame as pg
 import background
-import menu, constants as con
+from menu import *
+from constants import *
 import player as p
 
 def main():
     pg.init()
-    bt_new_game = menu.Button('Nowa Gra', 0, action=None)
-    bt_read_game = menu.Button('Wczytaj Grę', 1, action=None)
-    bt_exit = menu.Button('Wyjdź z gry', 2, lambda: pg.event.post(pg.event.Event(pg.QUIT)))
+    bt_new_game = Button('Nowa Gra', 0, action=None)
+    bt_read_game = Button('Wczytaj Grę', 1, action=None)
+    bt_exit = Button('Wyjdź z gry', 2, lambda: pg.event.post(pg.event.Event(pg.QUIT)))
     bts = [bt_new_game, bt_read_game, bt_exit]
-    box = menu.Box(len(bts))
-    bg = background.Background(con.s_width, con.s_height)
+    box = Box(len(bts))
+    bg = background.Background(SCREEN_WIDTH, SCREEN_HEIGHT)
     all_sprites = pg.sprite.Group((bg))
     dt = 0
-    player = p.Player()
     clock = pg.time.Clock()
     run = True
     while run:
-        frame_rate = 1000 / clock.tick(60)
-        dt = frame_rate / 1000
+        dt = clock.tick(FPS) / 1000
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 run = False
-        con.screen.fill((0, 255, 0))
-        all_sprites.draw(con.screen)
-        box.draw(con.screen)
+        SCREEN.fill((0, 255, 0))
+        all_sprites.draw(SCREEN)
+        box.draw(SCREEN)
         for bt in bts:
             bt.handle_event(event)
-            bt.draw(con.screen)
+            bt.draw(SCREEN)
         pg.display.flip()
     pg.quit()
 
