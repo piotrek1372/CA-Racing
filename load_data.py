@@ -5,15 +5,20 @@ import shutil
 
 class Data:
     def __init__(self):
+        # Base directories
         self.main_dir = os.path.dirname(os.path.abspath(__file__))
         self.data_dir = os.path.join(self.main_dir, 'data')
         self.saves_dir = os.path.join(self.data_dir, 'saves')
         self.template_dir = os.path.join(self.saves_dir, 'template')
+        
+        # Ensure saves directory exists
+        if not os.path.exists(self.saves_dir):
+            os.makedirs(self.saves_dir)
 
     def check_save_slots(self):
         """
-        Sprawdza status slotów 1, 2, 3.
-        Zwraca słownik, np.: {1: True, 2: False, 3: False} (True = zajęty)
+        Checks availability of save slots 1, 2, and 3.
+        Returns a dictionary: {1: True/False, ...} where True means occupied.
         """
         status = {}
         for i in range(1, 4):
@@ -22,9 +27,12 @@ class Data:
         return status
 
     def create_new_save(self, slot_id):
-        """Tworzy nowy zapis w podanym slocie kopiując szablon."""
+        """
+        Creates a new save by copying template files to the target slot folder.
+        """
         target_dir = os.path.join(self.saves_dir, f'save_{slot_id}')
         
+        # Create directory if it doesn't exist
         if not os.path.exists(target_dir):
             os.makedirs(target_dir)
             
@@ -33,30 +41,45 @@ class Data:
         
         try:
             shutil.copy(src_file, dst_file)
-            print(f"[DATA] Utworzono nowy zapis w Slot {slot_id}")
+            print(f"[DATA] Created new save in Slot {slot_id}")
             return True
         except Exception as e:
-            print(f"[DATA] Błąd przy tworzeniu zapisu: {e}")
+            print(f"[DATA] Error creating save: {e}")
             return False
 
     def load_game_data(self):
-        """Ładuje statyczną bazę przedmiotów (tylko raz)."""
+        """Loads static game data (cars, parts specs)."""
         path = os.path.join(self.template_dir, 'game_data.json')
         return self._load_json(path)
 
     def load_player_state(self, slot_id):
-        """Ładuje stan gracza z konkretnego slotu."""
+        """Loads dynamic player state from a specific slot."""
         path = os.path.join(self.saves_dir, f'save_{slot_id}', 'player_state.json')
         return self._load_json(path)
 
+    def save_player_state(self, slot_id, data):
+        """Saves current player state to JSON."""
+        path = os.path.join(self.saves_dir, f'save_{slot_id}', 'player_state.json')
+        try:
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4)
+            print(f"[DATA] Game saved to Slot {slot_id}")
+            return True
+        except Exception as e:
+            print(f"[DATA] Error saving game: {e}")
+            return False
+
     def _load_json(self, path):
-        """Pomocnicza funkcja do bezpiecznego ładowania JSON."""
+        """Helper to safely load JSON files."""
         try:
             with open(path, mode='r', encoding='utf-8') as f:
                 return json.load(f)
         except FileNotFoundError:
-            print(f"[DATA] Brak pliku: {path}")
+            print(f"[DATA] File not found: {path}")
+            return None
+        except json.JSONDecodeError:
+            print(f"[DATA] JSON Decode Error in: {path}")
             return None
         except Exception as e:
-            print(f"[DATA] Błąd JSON {path}: {e}")
+            print(f"[DATA] Unexpected error: {e}")
             return None

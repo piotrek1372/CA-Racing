@@ -1,39 +1,55 @@
 import pygame as pg
 from constants import *
-# Upewnij się, że importujesz zoptymalizowaną klasę Button z poprzedniej rozmowy!
-# Jeśli jej nie masz w pliku, wklej tutaj klasę Button z cache'owaniem tekstu.
 
 class Button:
-    # ... (Wklej tutaj zoptymalizowaną klasę Button z poprzedniej odpowiedzi) ...
-    # Dla skrótu zakładam, że ją masz. Jeśli nie - daj znać.
-    def __init__(self, text, index, action):
+    def __init__(self, text, index, action, custom_color=None):
         self.text = text
         self.action = action
+        
+        # Font settings
         self.font_size = 35
         self.font = pg.font.SysFont('Consolas', self.font_size, bold=True)
-        self.color_idle = BUTTON_COLOR
+        
+        # Colors
+        self.color_idle = custom_color if custom_color else BUTTON_COLOR
         self.color_hover = BUTTON_HOVER_COLOR
         self.text_color = TEXT_MAIN
         self.border_color = TEXT_DIM
         
-        # Optymalizacja rozmiaru
+        # Size calculation (Performance optimization: calc once)
         text_width, text_height = self.font.size(self.text)
-        self.width = text_width + 40
-        self.height = text_height + 20
-        self.topleft = (SCREEN_WIDTH / 2 - self.width / 2, index * (self.height + 15) + 150)
-        self.rect = pg.Rect(self.topleft[0], self.topleft[1], self.width, self.height)
+        padding_x, padding_y = 30, 15
+        self.width = text_width + padding_x
+        self.height = text_height + padding_y
         
-        # Prerenderowanie tekstu
+        # Positioning
+        center_x = SCREEN_WIDTH // 2
+        start_y = 200
+        self.rect = pg.Rect(0, 0, self.width, self.height)
+        self.rect.center = (center_x, start_y + index * (self.height + 20))
+        
+        # Shadow rect
+        self.shadow_rect = self.rect.copy()
+        self.shadow_rect.x += 3
+        self.shadow_rect.y += 3
+
+        # Prerender text (Performance optimization: render once)
         self.text_surf = self.font.render(self.text, True, self.text_color)
         self.text_rect = self.text_surf.get_rect(center=self.rect.center)
 
     def draw(self, screen):
+        # Mouse interaction
         mouse_pos = pg.mouse.get_pos()
         is_hovered = self.rect.collidepoint(mouse_pos)
         current_color = self.color_hover if is_hovered else self.color_idle
         
-        pg.draw.rect(screen, current_color, self.rect, border_radius=5)
-        pg.draw.rect(screen, self.border_color, self.rect, 2, border_radius=5)
+        # Draw shadow
+        pg.draw.rect(screen, (15, 15, 20), self.shadow_rect, border_radius=8)
+        # Draw button body
+        pg.draw.rect(screen, current_color, self.rect, border_radius=8)
+        # Draw border
+        pg.draw.rect(screen, self.border_color, self.rect, 2, border_radius=8)
+        # Blit cached text
         screen.blit(self.text_surf, self.text_rect)
 
     def handle_event(self, event):
@@ -43,48 +59,50 @@ class Button:
                     self.action()
 
 class Menu:
-    def __init__(self, game_instance):
-        self.game = game_instance
-        self.state = "main" # main, saves
+    def __init__(self, main_app):
+        self.app = main_app
+        self.state = "main" # 'main' or 'saves'
         self.buttons = []
-        self.create_main_menu()
+        
+        # Font for title
+        self.title_font = pg.font.SysFont('Consolas', 60, bold=True)
+        self.init_main_menu()
 
-    def create_main_menu(self):
-        """Tworzy przyciski menu głównego"""
+    def init_main_menu(self):
+        """Initializes buttons for the main menu."""
         self.state = "main"
         self.buttons = [
-            Button("Nowa Gra", 0, self.go_to_saves),
-            Button("Opcje", 1, lambda: print("Opcje - todo")),
-            Button("Wyjście", 2, self.game.quit_game)
+            Button("PLAY", 0, self.go_to_saves),
+            Button("OPTIONS", 1, lambda: print("Options clicked")),
+            Button("EXIT", 2, self.app.quit_game, custom_color=ACCENT_RED)
         ]
 
-    def create_save_menu(self):
-        """Tworzy menu wyboru slotów dynamicznie"""
+    def init_save_menu(self):
+        """Initializes buttons for save slot selection."""
         self.state = "saves"
         self.buttons = []
         
-        # Pobierz status slotów z DataManagera
-        slots = self.game.data_manager.check_save_slots()
+        # Check slots status from Data Manager
+        slots_status = self.app.data_manager.check_save_slots()
         
         for i in range(1, 4):
-            is_taken = slots[i]
-            text = f"Slot {i} [{'ZAJĘTY' if is_taken else 'WOLNY'}]"
-            # Funkcja lambda z 'default argument' (idx=i) żeby zapamiętać wartość i
-            action = lambda idx=i: self.game.start_new_game(idx)
+            is_occupied = slots_status[i]
+            status_text = "LOAD" if is_occupied else "NEW GAME"
+            btn_text = f"SLOT {i} [{status_text}]"
             
-            btn = Button(text, i-1, action)
-            # Jeśli zajęty, zmieniamy kolor na np. czerwonawy/złoty (opcjonalnie)
-            if is_taken:
-                btn.text_color = ACCENT_GOLD
-                btn.update_text(text) # Przerysowanie
-                
-            self.buttons.append(btn)
+            # Color logic: Green for new game, Blue for load
+            color = ACCENT_BLUE if is_occupied else ACCENT_GREEN
             
-        # Przycisk powrotu
-        self.buttons.append(Button("Powrót", 3, self.create_main_menu))
+            # Lambda to capture current index 'i'
+            action = lambda slot=i: self.app.start_game_session(slot)
+            
+            self.buttons.append(Button(btn_text, i-1, action, custom_color=color))
+            
+        # Back button
+        self.buttons.append(Button("BACK", 3, self.init_main_menu))
 
     def go_to_saves(self):
-        self.create_save_menu()
+        self.init_save_menu()
 
     def update(self, event):
         for btn in self.buttons:
@@ -93,18 +111,12 @@ class Menu:
     def draw(self, screen):
         screen.fill(BG_COLOR)
         
-        # Tytuł (można zoptymalizować wrzucając do init)
-        title_font = pg.font.SysFont('Consolas', 60, bold=True)
-        title_text = "WYBÓR ZAPISU" if self.state == "saves" else "CA RACING"
-        title_surf = title_font.render(title_text, True, ACCENT_BLUE)
-        screen.blit(title_surf, (SCREEN_WIDTH//2 - title_surf.get_width()//2, 50))
+        # Draw Title
+        title_text = "SELECT SAVE" if self.state == "saves" else "CA RACING"
+        title_surf = self.title_font.render(title_text, True, TEXT_MAIN)
+        title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        screen.blit(title_surf, title_rect)
         
+        # Draw Buttons
         for btn in self.buttons:
             btn.draw(screen)
-            
-    # Metoda pomocnicza do Button.update_text (trzeba dodać do klasy Button)
-    # Wklej to do klasy Button:
-    # def update_text(self, new_text):
-    #     self.text = new_text
-    #     self.text_surf = self.font.render(self.text, True, self.text_color)
-    #     self.text_rect = self.text_surf.get_rect(center=self.rect.center)

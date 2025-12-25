@@ -1,67 +1,90 @@
 import pygame as pg
+import sys
 from constants import *
-from menu import Menu
-from load_assets import load_game_assets
 from load_data import Data
+from load_assets import Assets
+from menu import Menu
 
 class GameSession:
-    def __init__(self, screen, data_manager, slot_id):
+    """
+    Represents the active gameplay state (Garage, Race, etc.).
+    Loaded after selecting a save slot.
+    """
+    def __init__(self, screen, data_manager, slot_id, assets):
         self.screen = screen
         self.data_manager = data_manager
         self.slot_id = slot_id
+        self.assets = assets
         
-        self.game_db = self.data_manager.load_game_data() # Baza przedmiotów
-        self.player_state = self.data_manager.load_player_state(slot_id) # Save gracza
+        # Load data
+        self.game_db = self.data_manager.load_game_data()
+        self.player_state = self.data_manager.load_player_state(slot_id)
         
-        print(f"Załadowano grę na slocie {slot_id}. Gracz: {self.player_state['player']['name']}")
+        self.font = pg.font.SysFont('Consolas', 24)
+        print(f"[GAME] Session started on Slot {self.slot_id}")
 
-    def run(self):
+    def update(self, events):
+        """Handle gameplay logic."""
+        pass
 
+    def draw(self):
+        """Render the game/garage screen."""
         self.screen.fill(BG_COLOR)
-        font = pg.font.SysFont('Consolas', 30)
-        text = font.render(f"GRA W TOKU (Slot {self.slot_id}) - Wciśnij ESC aby wyjść", True, TEXT_MAIN)
-        self.screen.blit(text, (50, 300))
         
-        # Wyświetl stan kasy (test odczytu JSON)
-        money = self.player_state['player']['money']
-        money_text = font.render(f"Kasa: {money}$", True, ACCENT_GREEN)
-        self.screen.blit(money_text, (50, 350))
+        # Debug/Info display
+        p_name = self.player_state['player']['name']
+        p_money = self.player_state['player']['money']
+        
+        info_lines = [
+            f"Garage View (Slot {self.slot_id})",
+            f"Player: {p_name}",
+            f"Money: ${p_money}",
+            "Press ESC to return to Menu"
+        ]
+        
+        for i, line in enumerate(info_lines):
+            surf = self.font.render(line, True, TEXT_MAIN)
+            self.screen.blit(surf, (50, 50 + i * 30))
+
+        # Example: Draw a car sprite if available
+        if 'cars' in self.assets and self.assets['cars']:
+            # Just drawing the whole spritesheet as a test
+            self.screen.blit(self.assets['cars'], (50, 200))
 
 class Main:
     def __init__(self):
         pg.init()
+        # Initialize display with Double Buffering for performance
         self.screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pg.DOUBLEBUF)
         pg.display.set_caption("CA Racing")
         self.clock = pg.time.Clock()
         self.running = True
-        self.state = "menu" # menu, game
         
-        # 1. Ładowanie zasobów i narzędzi
-        self.assets = load_game_assets()
+        # App State: 'MENU' or 'GAME'
+        self.state = 'MENU'
+        
+        # Initialize Managers
         self.data_manager = Data()
+        self.assets = Assets() # Ensure this function returns a dict
         
-        # 2. Inicjalizacja Menu
+        # Initialize Components
         self.menu = Menu(self)
-        
-        # 3. Placeholder na sesję gry
-        self.current_session = None
+        self.game_session = None
 
-    def start_new_game(self, slot_id):
-        """Logika uruchamiana po wybraniu slotu w menu"""
-        print(f"Wybrano slot {slot_id}")
+    def start_game_session(self, slot_id):
+        """Transitions from Menu to Game using the specified save slot."""
         
-        # 1. Jeśli save nie istnieje, stwórz go
+        # check if save exists, if not create it
         slots = self.data_manager.check_save_slots()
         if not slots[slot_id]:
-            success = self.data_manager.create_new_save(slot_id)
-            if not success:
-                return # Błąd tworzenia
+            print(f"[MAIN] Creating new save for Slot {slot_id}...")
+            if not self.data_manager.create_new_save(slot_id):
+                print("[MAIN] Failed to create save.")
+                return
 
-        # 2. Załaduj sesję gry
-        self.current_session = GameSession(self.screen, self.data_manager, slot_id)
-        
-        # 3. Zmień stan
-        self.state = "game"
+        # Initialize session
+        self.game_session = GameSession(self.screen, self.data_manager, slot_id, self.assets)
+        self.state = 'GAME'
 
     def quit_game(self):
         self.running = False
@@ -69,30 +92,37 @@ class Main:
     def run(self):
         while self.running:
             events = pg.event.get()
+            
+            # Global Event Handling
             for event in events:
                 if event.type == pg.QUIT:
                     self.running = False
                 
-                # Obsługa inputu zależnie od stanu
-                if self.state == "menu":
-                    self.menu.update(event)
-                elif self.state == "game":
-                    # Tutaj obsługa inputu w grze (np. ESC wraca do menu)
-                    if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
-                        self.state = "menu"
-                        self.current_session = None # Czyścimy sesję (opcjonalne)
+                # Global Keybinds
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_ESCAPE:
+                        if self.state == 'GAME':
+                            self.state = 'MENU'
+                            self.game_session = None # Unload session
+                            self.menu.init_main_menu() # Reset menu
 
-            # Rysowanie
-            if self.state == "menu":
+            # State Machine Update/Draw
+            if self.state == 'MENU':
+                # Pass events to menu
+                for event in events:
+                    self.menu.update(event)
                 self.menu.draw(self.screen)
-            elif self.state == "game":
-                if self.current_session:
-                    self.current_session.run()
+                
+            elif self.state == 'GAME':
+                if self.game_session:
+                    self.game_session.update(events)
+                    self.game_session.draw()
 
             pg.display.flip()
             self.clock.tick(FPS)
 
         pg.quit()
+        sys.exit()
 
 if __name__ == "__main__":
     app = Main()
