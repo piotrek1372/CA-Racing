@@ -1,36 +1,30 @@
 import pygame as pg
 from constants import *
-from menu import Button  # Reusing the Button class for consistency
+from menu import Button
 
 class SettingsMenu:
     """
-    Unified Settings Menu accessible from both Main Menu and In-Game Hub.
-    Handles sub-menus for Audio, Graphics, and Language.
+    Unified Settings Menu with functional logic for Graphics, Audio, and Language.
     """
     def __init__(self, app, return_callback):
-        """
-        :param app: Reference to the main application instance (for language access).
-        :param return_callback: Function to call when 'Back' is pressed (restores previous state).
-        """
         self.app = app
         self.return_callback = return_callback
         self.screen = app.screen
-        
-        # Internal state: 'MAIN', 'AUDIO', 'GRAPHICS', 'LANGUAGE'
         self.current_state = 'MAIN'
-        
         self.title_font = pg.font.SysFont('Consolas', 50, bold=True)
         self.buttons = []
         
-        # Initialize the main settings view
         self.init_main_view()
 
+    def _get_center(self):
+        """Helper to get current center even if resolution changed."""
+        w, h = self.app.screen.get_size()
+        return w // 2
+
     def init_main_view(self):
-        """Creates buttons for the top-level settings menu."""
         self.current_state = 'MAIN'
         self.buttons = []
-        
-        center_x = SCREEN_WIDTH // 2
+        center_x = self._get_center()
         start_y = 250
         gap_y = 70
         
@@ -48,70 +42,153 @@ class SettingsMenu:
             self.buttons.append(Button(text, pos, action, custom_color=color))
 
     def init_audio_view(self):
-        """Creates buttons for Audio settings."""
         self.current_state = 'AUDIO'
         self.buttons = []
-        center_x = SCREEN_WIDTH // 2
+        center_x = self._get_center()
         start_y = 250
         
-        # Placeholders for sliders/toggles
-        # In a real implementation, these would be interactive sliders
-        self.buttons.append(Button(f"{self.app.lang.get('audio_sfx')}: 100%", (center_x, start_y), lambda: print("SFX Change")))
-        self.buttons.append(Button(f"{self.app.lang.get('audio_music')}: 100%", (center_x, start_y + 70), lambda: print("Music Change")))
-        
-        # Back button returns to Settings Main View
+        # Placeholder functionality for Audio
+        self.buttons.append(Button(f"{self.app.lang.get('audio_sfx')}: 100%", (center_x, start_y), lambda: print("SFX TODO")))
+        self.buttons.append(Button(f"{self.app.lang.get('audio_music')}: 100%", (center_x, start_y + 70), lambda: print("Music TODO")))
         self.buttons.append(Button(self.app.lang.get("menu_back"), (center_x, start_y + 160), self.init_main_view, ACCENT_RED))
 
     def init_graphics_view(self):
-        """Creates buttons for Graphics settings."""
+        """
+        Creates functional buttons for graphics settings.
+        Reads current state from app.player.settings (if in game) or uses defaults.
+        """
         self.current_state = 'GRAPHICS'
         self.buttons = []
-        center_x = SCREEN_WIDTH // 2
-        start_y = 250
+        center_x = self._get_center()
+        start_y = 150
+        gap_y = 70
         
-        self.buttons.append(Button(f"{self.app.lang.get('gfx_fps')}: 60", (center_x, start_y), lambda: print("FPS Change")))
-        self.buttons.append(Button(f"{self.app.lang.get('gfx_quality')}: HIGH", (center_x, start_y + 70), lambda: print("Quality Change")))
+        # We need access to player settings. If loaded from Main Menu without a save loaded,
+        # we might need a temporary settings holder. For now, assuming Global Main has settings
+        # or we edit the currently active session's player.
         
-        self.buttons.append(Button(self.app.lang.get("menu_back"), (center_x, start_y + 160), self.init_main_view, ACCENT_RED))
+        # If we are in Main Menu (no game session), we edit 'global' app settings
+        # stored in app.temp_settings, otherwise app.game_session.player.settings
+        
+        current_settings = self._get_active_settings()
+
+        # 1. Resolution
+        res_idx = current_settings.get("resolution_idx", 0)
+        if res_idx < len(RESOLUTIONS):
+            curr_res = RESOLUTIONS[res_idx]
+        else:
+            curr_res = RESOLUTIONS[0]
+        
+        res_text = f"{self.app.lang.get('gfx_resolution')}: {curr_res[0]}x{curr_res[1]}"
+        self.buttons.append(Button(res_text, (center_x, start_y), self.cycle_resolution))
+
+        # 2. Fullscreen
+        is_fs = current_settings.get("fullscreen", False)
+        fs_status = self.app.lang.get("val_on") if is_fs else self.app.lang.get("val_off")
+        fs_text = f"{self.app.lang.get('gfx_fullscreen')}: {fs_status}"
+        self.buttons.append(Button(fs_text, (center_x, start_y + gap_y), self.toggle_fullscreen))
+
+        # 3. FPS
+        fps_val = current_settings.get("max_fps", 60)
+        fps_text = f"{self.app.lang.get('gfx_fps')}: {fps_val}"
+        self.buttons.append(Button(fps_text, (center_x, start_y + gap_y*2), self.cycle_fps))
+
+        # 4. Quality
+        qual_val = current_settings.get("quality", "HIGH")
+        # Map internal code to localized string
+        q_map = {
+            "LOW": self.app.lang.get("quality_low"),
+            "MED": self.app.lang.get("quality_med"),
+            "HIGH": self.app.lang.get("quality_high")
+        }
+        qual_text = f"{self.app.lang.get('gfx_quality')}: {q_map.get(qual_val, qual_val)}"
+        self.buttons.append(Button(qual_text, (center_x, start_y + gap_y*3), self.cycle_quality))
+
+        # Back
+        self.buttons.append(Button(self.app.lang.get("menu_back"), (center_x, start_y + gap_y*5), self.init_main_view, ACCENT_RED))
+
+    # --- Logic Helpers ---
+
+    def _get_active_settings(self):
+        """Returns the dictionary to modify (Player's or App's temp)."""
+        if self.app.game_session:
+            return self.app.game_session.player.settings
+        else:
+            return self.app.global_settings
+
+    def _save_and_apply(self):
+        """Refreshes the view (to show new text) and applies graphics."""
+        self.app.apply_graphics_settings() # Apply window changes
+        self.init_graphics_view() # Re-create buttons with new text/positions
+
+    def cycle_resolution(self):
+        settings = self._get_active_settings()
+        idx = settings.get("resolution_idx", 0)
+        idx = (idx + 1) % len(RESOLUTIONS)
+        settings["resolution_idx"] = idx
+        self._save_and_apply()
+
+    def toggle_fullscreen(self):
+        settings = self._get_active_settings()
+        settings["fullscreen"] = not settings.get("fullscreen", False)
+        self._save_and_apply()
+
+    def cycle_fps(self):
+        settings = self._get_active_settings()
+        current = settings.get("max_fps", 60)
+        # Find next in list
+        try:
+            curr_idx = FPS_LIMITS.index(current)
+            next_idx = (curr_idx + 1) % len(FPS_LIMITS)
+        except ValueError:
+            next_idx = 1 # Default to 60 if weird value
+        
+        settings["max_fps"] = FPS_LIMITS[next_idx]
+        self._save_and_apply()
+
+    def cycle_quality(self):
+        settings = self._get_active_settings()
+        modes = ["LOW", "MED", "HIGH"]
+        current = settings.get("quality", "HIGH")
+        try:
+            curr_idx = modes.index(current)
+            next_idx = (curr_idx + 1) % len(modes)
+        except ValueError:
+            next_idx = 2
+        
+        settings["quality"] = modes[next_idx]
+        # Quality might affect asset loading, which is complex to do runtime,
+        # but we can affect drawing logic immediately.
+        self._save_and_apply()
 
     def init_language_view(self):
-        """Creates buttons for Language selection."""
         self.current_state = 'LANGUAGE'
         self.buttons = []
-        center_x = SCREEN_WIDTH // 2
+        center_x = self._get_center()
         start_y = 200
         gap_y = 60
         
-        # Available languages
         langs = [("English", "en"), ("Polski", "pl"), ("Deutsch", "de"), 
                  ("Español", "es"), ("Français", "fr"), ("Português", "pt")]
         
         for i, (name, code) in enumerate(langs):
-            # Action: change language and refresh the view immediately
             action = lambda c=code: self.change_language(c)
             pos = (center_x, start_y + i * gap_y)
             self.buttons.append(Button(name, pos, action))
             
-        # Back button
         self.buttons.append(Button(self.app.lang.get("menu_back"), (center_x, start_y + len(langs)*gap_y + 20), self.init_main_view, ACCENT_RED))
 
     def change_language(self, code):
-        """Updates the language and refreshes the current view."""
-        print(f"[SETTINGS] Changing language to {code}")
         self.app.lang.load_language(code)
-        # Re-initialize the language view to update texts (e.g. Back button)
         self.init_language_view()
 
     def update(self, event):
-        """Handles events for the active buttons."""
         for btn in self.buttons:
             btn.handle_event(event)
 
     def draw(self, screen):
-        """Draws the settings menu."""
         screen.fill(BG_COLOR)
         
-        # Draw Title
         title_key = "settings_title"
         if self.current_state == 'AUDIO': title_key = "settings_audio"
         elif self.current_state == 'GRAPHICS': title_key = "settings_graphics"
@@ -119,9 +196,8 @@ class SettingsMenu:
         
         title_text = self.app.lang.get(title_key)
         title_surf = self.title_font.render(title_text, True, TEXT_MAIN)
-        title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        title_rect = title_surf.get_rect(center=(self._get_center(), 100))
         screen.blit(title_surf, title_rect)
         
-        # Draw Buttons
         for btn in self.buttons:
             btn.draw(screen)

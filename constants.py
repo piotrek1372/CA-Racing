@@ -1,29 +1,28 @@
-import pygame as pg
-
-pg.init()
-
-RESOLUTION = SCREEN_WIDTH, SCREEN_HEIGHT = pg.display.get_desktop_sizes()[0]
-SCREEN = pg.display.set_mode(RESOLUTION, pg.FULLSCREEN)
-
+# Screen dimensions
+# Note: Initial values, but these can be overridden by settings
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
 FPS = 60
 
-BG_COLOR = (28, 31, 35)  
+# --- Graphics Settings Constants ---
+# Available resolutions for the settings menu
+RESOLUTIONS = [
+    (1280, 720),
+    (1366, 768),
+    (1600, 900),
+    (1920, 1080)
+]
 
-PANEL_BG = (40, 44, 52)
-BUTTON_COLOR = (50, 54, 64)
-BUTTON_HOVER_COLOR = (70, 75, 90)
-BUTTON_BORDER = (200, 200, 200)
+FPS_LIMITS = [30, 60, 120, 144]
 
-TEXT_MAIN = (235, 235, 240)
-TEXT_DIM = (150, 155, 165)
-
-ACCENT_GREEN = (46, 204, 113)
-ACCENT_RED = (231, 76, 60)
-ACCENT_BLUE = (52, 152, 219)
-ACCENT_GOLD = (241, 196, 15)
-
-WHITE = TEXT_MAIN
-BLACK = BG_COLOR
-RED = ACCENT_RED
-GREEN = ACCENT_GREEN
-BLUE = ACCENT_BLUE
+# Colors (R, G, B)
+BG_COLOR = (30, 30, 30)
+PANEL_BG = (50, 50, 55)
+TEXT_MAIN = (255, 255, 255)
+TEXT_DIM = (150, 150, 150)
+ACCENT_GREEN = (50, 200, 50)
+ACCENT_RED = (200, 50, 50)
+ACCENT_BLUE = (50, 100, 200)
+ACCENT_GOLD = (255, 215, 0)
+BUTTON_COLOR = (70, 70, 80)
+BUTTON_HOVER_COLOR = (100, 100, 120)

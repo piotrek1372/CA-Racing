@@ -24,5 +24,12 @@
     "audio_music": "Volume Musique",
     "gfx_fps": "FPS Max",
     "gfx_quality": "Qualité",
+    "gfx_resolution": "Résolution",
+    "gfx_fullscreen": "Plein écran",
+    "quality_low": "BASSE",
+    "quality_med": "MOYENNE",
+    "quality_high": "HAUTE",
+    "val_on": "ON",
+    "val_off": "OFF",
     "lang_select": "Choisir la langue"
 }

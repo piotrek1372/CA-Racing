@@ -1,10 +1,7 @@
 import pygame as pg
 from constants import *
 
-# Note: The Button class is imported by settings.py, so we keep it here.
-# Ideally, UI elements should be in a separate ui.py file to avoid circular imports,
-# but for this structure, we keep it here.
-
+# (Button class remains unchanged, reusing logic)
 class Button:
     def __init__(self, text, center_pos, action, custom_color=None):
         self.text = text
@@ -15,23 +12,15 @@ class Button:
         self.color_hover = BUTTON_HOVER_COLOR
         self.text_color = TEXT_MAIN
         self.border_color = TEXT_DIM
-        
-        # Calculate size
         text_width, text_height = self.font.size(self.text)
         padding_x, padding_y = 30, 15
         self.width = text_width + padding_x
         self.height = text_height + padding_y
-        
-        # Position
         self.rect = pg.Rect(0, 0, self.width, self.height)
         self.rect.center = center_pos
-        
-        # Shadow
         self.shadow_rect = self.rect.copy()
         self.shadow_rect.x += 3
         self.shadow_rect.y += 3
-        
-        # Prerender text
         self.text_surf = self.font.render(self.text, True, self.text_color)
         self.text_rect = self.text_surf.get_rect(center=self.rect.center)
 
@@ -39,8 +28,6 @@ class Button:
         mouse_pos = pg.mouse.get_pos()
         is_hovered = self.rect.collidepoint(mouse_pos)
         current_color = self.color_hover if is_hovered else self.color_idle
-        
-        # Draw shadow, body, and border
         pg.draw.rect(screen, (15, 15, 20), self.shadow_rect, border_radius=8)
         pg.draw.rect(screen, current_color, self.rect, border_radius=8)
         pg.draw.rect(screen, self.border_color, self.rect, 2, border_radius=8)
@@ -55,23 +42,26 @@ class Button:
 class Menu:
     def __init__(self, main_app):
         self.app = main_app
-        self.state = "main" # 'main', 'saves'
+        self.state = "main"
         self.buttons = []
         self.title_font = pg.font.SysFont('Consolas', 60, bold=True)
         self.init_main_menu()
 
+    def _get_center_x(self):
+        """Helper to get dynamic center X."""
+        w, h = self.app.screen.get_size()
+        return w // 2
+
     def init_main_menu(self):
-        """Initializes main menu buttons."""
         self.state = "main"
         self.buttons = []
         
-        center_x = SCREEN_WIDTH // 2
+        center_x = self._get_center_x()
         start_y = 250
         gap_y = 70
 
         options = [
             (self.app.lang.get("menu_play"), self.go_to_saves, None),
-            # Direct link to the shared Settings logic in Main
             (self.app.lang.get("menu_options"), self.app.open_settings_from_menu, None),
             (self.app.lang.get("menu_exit"), self.app.quit_game, ACCENT_RED)
         ]
@@ -81,23 +71,20 @@ class Menu:
             self.buttons.append(Button(text, pos, action, custom_color=color))
 
     def init_save_menu(self):
-        """Initializes save slot buttons."""
         self.state = "saves"
         self.buttons = []
         
-        center_x = SCREEN_WIDTH // 2
+        center_x = self._get_center_x()
         start_y = 200
         gap_y = 80
         
         slots_status = self.app.data_manager.check_save_slots()
-        
         prefix = self.app.lang.get("slot_prefix")
         txt_load = self.app.lang.get("slot_load")
         txt_new = self.app.lang.get("slot_new")
         
         for i in range(1, 4):
             is_occupied = slots_status[i]
-            
             if is_occupied:
                 btn_text = f"{prefix} {i} [{txt_load}]"
                 color = ACCENT_BLUE
@@ -127,7 +114,7 @@ class Menu:
         title_text = self.app.lang.get(key)
         
         title_surf = self.title_font.render(title_text, True, TEXT_MAIN)
-        title_rect = title_surf.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        title_rect = title_surf.get_rect(center=(self._get_center_x(), 100))
         screen.blit(title_surf, title_rect)
         
         for btn in self.buttons:
