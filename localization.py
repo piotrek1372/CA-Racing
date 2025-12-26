@@ -24,12 +24,12 @@ class LanguageManager:
         return "en" # Default fallback
 
     def load_language(self, lang_code):
-        """Loads the JSON file from the data/saves/lang/ folder."""
+        """Loads the JSON file from the data/lang/ folder."""
         self.current_lang = lang_code
         
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        # Path correction: data/saves/lang instead of data/lang
-        path = os.path.join(base_dir, "data", "saves", "lang", f"{lang_code}.json")
+        # Path fixed to point to 'data/lang' where json files are located
+        path = os.path.join(base_dir, "data", "lang", f"{lang_code}.json")
         
         try:
             with open(path, "r", encoding="utf-8") as f:
