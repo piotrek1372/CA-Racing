@@ -10,7 +10,10 @@ class Data:
         self.saves_dir = os.path.join(self.data_dir, 'saves')
         self.template_dir = os.path.join(self.saves_dir, 'template')
         
-        # Safety check
+        # New global settings file path
+        self.global_settings_path = os.path.join(self.data_dir, 'settings.json')
+        
+        # Safety check for directories
         if not os.path.exists(self.saves_dir):
             os.makedirs(self.saves_dir)
 
@@ -53,20 +56,49 @@ class Data:
     def save_player_state(self, slot_id, data):
         """Saves current player state to JSON."""
         path = os.path.join(self.saves_dir, f'save_{slot_id}', 'player_state.json')
-        try:
-            with open(path, 'w', encoding='utf-8') as f:
-                json.dump(data, f, indent=4)
-            print(f"[DATA] Game saved to Slot {slot_id}")
-            return True
-        except Exception as e:
-            print(f"[DATA] Error saving game: {e}")
-            return False
+        return self._save_json(path, data)
+
+    # --- GLOBAL SETTINGS MANAGEMENT ---
+    def load_global_settings(self):
+        """Loads global config from data/settings.json. Returns defaults if missing."""
+        default_settings = {
+            "resolution_idx": 0,
+            "fullscreen": False,
+            "max_fps": 60,
+            "quality": "HIGH",
+            "language": "en"
+        }
+        
+        if not os.path.exists(self.global_settings_path):
+            print("[DATA] Global settings not found. Creating new file.")
+            self._save_json(self.global_settings_path, default_settings)
+            return default_settings
+        
+        data = self._load_json(self.global_settings_path)
+        # Merge with defaults in case of missing keys
+        for key, val in default_settings.items():
+            if key not in data:
+                data[key] = val
+        return data
+
+    def save_global_settings(self, data):
+        """Saves global configuration."""
+        return self._save_json(self.global_settings_path, data)
+    # ----------------------------------
 
     def _load_json(self, path):
-        """Helper to safely load JSON files."""
         try:
             with open(path, mode='r', encoding='utf-8') as f:
                 return json.load(f)
         except Exception as e:
             print(f"[DATA] Error loading {path}: {e}")
             return {}
+
+    def _save_json(self, path, data):
+        try:
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4)
+            return True
+        except Exception as e:
+            print(f"[DATA] Error saving {path}: {e}")
+            return False

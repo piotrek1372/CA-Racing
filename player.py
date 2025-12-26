@@ -4,26 +4,25 @@ class Player:
     def __init__(self, player_data, game_db):
         """
         Initializes the Player object using data loaded from JSON.
+        Does NOT handle graphics/audio settings anymore.
         """
-        # Load core player stats
+        # Base stats
         self.name = player_data['player']['name']
         self.money = player_data['player']['money']
         self.level = player_data['player']['level']
         self.exp = player_data['player']['exp']
         
+        # Garage & Inventory
         self.garage = player_data.get('garage', [])
         self.inventory = player_data.get('inventory', {})
+
+        # Reference to the static game database
         self.game_db = game_db
 
-        # --- Graphics & System Settings ---
-        # Load settings or apply defaults if missing
-        settings_data = player_data.get('settings', {})
-        self.settings = {
-            "resolution_idx": settings_data.get("resolution_idx", 0), # Default 1280x720
-            "fullscreen": settings_data.get("fullscreen", False),
-            "max_fps": settings_data.get("max_fps", 60),
-            "quality": settings_data.get("quality", "HIGH") # LOW, MED, HIGH
-        }
+    def set_name(self, new_name):
+        """Updates the player's nickname."""
+        if new_name and len(new_name) > 0:
+            self.name = new_name
 
     def add_money(self, amount):
         self.money += amount
@@ -37,7 +36,7 @@ class Player:
     def to_dict(self):
         """
         Converts the Player object back to a dictionary for JSON saving.
-        Includes the settings block.
+        Note: Settings are NOT included here.
         """
         return {
             "player": {
@@ -47,6 +46,5 @@ class Player:
                 "exp": self.exp
             },
             "garage": self.garage,
-            "inventory": self.inventory,
-            "settings": self.settings
+            "inventory": self.inventory
         }

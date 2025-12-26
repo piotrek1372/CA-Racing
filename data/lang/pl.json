@@ -11,12 +11,13 @@
     "hub_race": "WYŚCIG",
     "hub_garage": "GARAŻ",
     "hub_shop": "SKLEP",
-    "hub_settings": "USTAWIENIA",
+    "hub_settings": "PROFIL",
     "hub_main_menu": "MENU GŁÓWNE",
     "info_driver": "KIEROWCA",
     "info_money": "KASA",
     "msg_esc": "Wciśnij ESC aby wrócić",
-    "settings_title": "USTAWIENIA",
+    "settings_global_title": "OPCJE GRY",
+    "settings_player_title": "PROFIL GRACZA",
     "settings_audio": "DŹWIĘK",
     "settings_graphics": "GRAFIKA",
     "settings_language": "JĘZYK",
@@ -31,5 +32,8 @@
     "quality_high": "WYSOKA",
     "val_on": "WŁ",
     "val_off": "WYŁ",
-    "lang_select": "Wybierz Język"
+    "lang_select": "Wybierz Język",
+    "btn_rename": "ZMIEŃ NICK",
+    "label_enter_name": "WPISZ NOWY NICK:",
+    "btn_save": "ZAPISZ"
 }

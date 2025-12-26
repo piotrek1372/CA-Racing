@@ -11,12 +11,13 @@
     "hub_race": "RENNEN",
     "hub_garage": "WERKSTATT",
     "hub_shop": "LADEN",
-    "hub_settings": "EINSTELLUNGEN",
+    "hub_settings": "PROFIL",
     "hub_main_menu": "HAUPTMENÜ",
     "info_driver": "FAHRER",
     "info_money": "GELD",
     "msg_esc": "Drücke ESC zum Zurückkehren",
-    "settings_title": "EINSTELLUNGEN",
+    "settings_global_title": "SPIELOPTIONEN",
+    "settings_player_title": "SPIELERPROFIL",
     "settings_audio": "AUDIO",
     "settings_graphics": "GRAFIK",
     "settings_language": "SPRACHE",
@@ -31,5 +32,8 @@
     "quality_high": "HOCH",
     "val_on": "AN",
     "val_off": "AUS",
-    "lang_select": "Sprache wählen"
+    "lang_select": "Sprache wählen",
+    "btn_rename": "NAME ÄNDERN",
+    "label_enter_name": "NEUEN NAMEN EINGEBEN:",
+    "btn_save": "SPEICHERN"
 }

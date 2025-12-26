@@ -11,12 +11,13 @@
     "hub_race": "RACE",
     "hub_garage": "GARAGE",
     "hub_shop": "SHOP",
-    "hub_settings": "SETTINGS",
+    "hub_settings": "PROFILE",
     "hub_main_menu": "MAIN MENU",
     "info_driver": "DRIVER",
     "info_money": "MONEY",
     "msg_esc": "Press ESC to return",
-    "settings_title": "SETTINGS",
+    "settings_global_title": "GAME OPTIONS",
+    "settings_player_title": "PLAYER PROFILE",
     "settings_audio": "AUDIO",
     "settings_graphics": "GRAPHICS",
     "settings_language": "LANGUAGE",
@@ -31,5 +32,8 @@
     "quality_high": "HIGH",
     "val_on": "ON",
     "val_off": "OFF",
-    "lang_select": "Select Language"
+    "lang_select": "Select Language",
+    "btn_rename": "CHANGE NAME",
+    "label_enter_name": "ENTER NEW NAME:",
+    "btn_save": "SAVE"
 }

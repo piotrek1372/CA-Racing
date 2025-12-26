@@ -1,6 +1,6 @@
 {
     "player": {
-        "name": "Player",
+        "name": "Piotrek",
         "money": 500,
         "level": 1,
         "exp": 0
@@ -21,11 +21,5 @@
         "engines": [],
         "breaks": [],
         "boosts": []
-    },
-    "settings": {
-        "resolution_idx": 2,
-        "fullscreen": true,
-        "max_fps": 60,
-        "quality": "LOW"
     }
 }

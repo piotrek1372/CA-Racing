@@ -11,12 +11,13 @@
     "hub_race": "CARRERA",
     "hub_garage": "GARAJE",
     "hub_shop": "TIENDA",
-    "hub_settings": "AJUSTES",
+    "hub_settings": "PERFIL",
     "hub_main_menu": "MENÚ PRINCIPAL",
     "info_driver": "PILOTO",
     "info_money": "DINERO",
     "msg_esc": "Presiona ESC para volver",
-    "settings_title": "AJUSTES",
+    "settings_global_title": "OPCIONES DE JUEGO",
+    "settings_player_title": "PERFIL DE JUGADOR",
     "settings_audio": "AUDIO",
     "settings_graphics": "GRÁFICOS",
     "settings_language": "IDIOMA",
@@ -31,5 +32,8 @@
     "quality_high": "ALTA",
     "val_on": "SI",
     "val_off": "NO",
-    "lang_select": "Seleccionar Idioma"
+    "lang_select": "Seleccionar Idioma",
+    "btn_rename": "CAMBIAR NOMBRE",
+    "label_enter_name": "NUEVO NOMBRE:",
+    "btn_save": "GUARDAR"
 }

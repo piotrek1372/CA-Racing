@@ -11,12 +11,13 @@
     "hub_race": "CORRIDA",
     "hub_garage": "GARAGEM",
     "hub_shop": "LOJA",
-    "hub_settings": "CONFIGURAÇÕES",
+    "hub_settings": "PERFIL",
     "hub_main_menu": "MENU PRINCIPAL",
     "info_driver": "PILOTO",
     "info_money": "DINHEIRO",
     "msg_esc": "Pressione ESC para voltar",
-    "settings_title": "CONFIGURAÇÕES",
+    "settings_global_title": "OPÇÕES DE JOGO",
+    "settings_player_title": "PERFIL DO JOGADOR",
     "settings_audio": "ÁUDIO",
     "settings_graphics": "GRÁFICOS",
     "settings_language": "IDIOMA",
@@ -31,5 +32,8 @@
     "quality_high": "ALTA",
     "val_on": "LIGADO",
     "val_off": "DESLIGADO",
-    "lang_select": "Selecionar Idioma"
+    "lang_select": "Selecionar Idioma",
+    "btn_rename": "MUDAR NOME",
+    "label_enter_name": "NOVO NOME:",
+    "btn_save": "SALVAR"
 }
