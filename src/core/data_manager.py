@@ -1,24 +1,21 @@
 import os
 import json
 import shutil
+from src.constants import DATA_DIR
 
-class Data:
+class DataManager:
     def __init__(self):
-        # Path setup
-        self.main_dir = os.path.dirname(os.path.abspath(__file__))
-        self.data_dir = os.path.join(self.main_dir, 'data')
+        self.data_dir = DATA_DIR
         self.saves_dir = os.path.join(self.data_dir, 'saves')
         self.template_dir = os.path.join(self.saves_dir, 'template')
-        
-        # New global settings file path
         self.global_settings_path = os.path.join(self.data_dir, 'settings.json')
         
-        # Safety check for directories
+        # Ensure directories exist
         if not os.path.exists(self.saves_dir):
             os.makedirs(self.saves_dir)
 
     def check_save_slots(self):
-        """Returns dict {1: bool, 2: bool, 3: bool} indicating if save exists."""
+        """Returns dict {1: bool, ...} indicating if save exists."""
         status = {}
         for i in range(1, 4):
             save_path = os.path.join(self.saves_dir, f'save_{i}', 'player_state.json')
@@ -26,9 +23,7 @@ class Data:
         return status
 
     def create_new_save(self, slot_id):
-        """Copies template files to save_{slot_id}."""
         target_dir = os.path.join(self.saves_dir, f'save_{slot_id}')
-        
         if not os.path.exists(target_dir):
             os.makedirs(target_dir)
             
@@ -44,23 +39,18 @@ class Data:
             return False
 
     def load_game_data(self):
-        """Loads static game data (cars, parts specs)."""
         path = os.path.join(self.template_dir, 'game_data.json')
         return self._load_json(path)
 
     def load_player_state(self, slot_id):
-        """Loads dynamic player state from a specific slot."""
         path = os.path.join(self.saves_dir, f'save_{slot_id}', 'player_state.json')
         return self._load_json(path)
 
     def save_player_state(self, slot_id, data):
-        """Saves current player state to JSON."""
         path = os.path.join(self.saves_dir, f'save_{slot_id}', 'player_state.json')
         return self._save_json(path, data)
 
-    # --- GLOBAL SETTINGS MANAGEMENT ---
     def load_global_settings(self):
-        """Loads global config from data/settings.json. Returns defaults if missing."""
         default_settings = {
             "resolution_idx": 0,
             "fullscreen": False,
@@ -70,21 +60,18 @@ class Data:
         }
         
         if not os.path.exists(self.global_settings_path):
-            print("[DATA] Global settings not found. Creating new file.")
             self._save_json(self.global_settings_path, default_settings)
             return default_settings
         
         data = self._load_json(self.global_settings_path)
-        # Merge with defaults in case of missing keys
+        # Merge defaults
         for key, val in default_settings.items():
             if key not in data:
                 data[key] = val
         return data
 
     def save_global_settings(self, data):
-        """Saves global configuration."""
         return self._save_json(self.global_settings_path, data)
-    # ----------------------------------
 
     def _load_json(self, path):
         try:
