@@ -54,7 +54,10 @@ class GarageMenu:
         
         for i, item in enumerate(self.player.garage):
             # FIX: Ensure we have the String ID, even if item is a Dict object
-            car_id = item.get('name') if isinstance(item, dict) else item
+            # Check model_id first (correct for new saves), then name
+            car_id = item
+            if isinstance(item, dict):
+                car_id = item.get('model_id') or item.get('name')
             
             row = i // cols_per_row
             col = i % cols_per_row
@@ -101,7 +104,8 @@ class GarageMenu:
         mouse_pos = pg.mouse.get_pos()
         
         for rect, car_id in self.car_rects:
-            # 1. Get Sprite (Now safely handled in assets.py)
+            # 1. Get Sprite (Now safely handled in assets.py even if passed dict by mistake, 
+            # though calculate_car_grid tries to pass string)
             sprite = get_car_sprite(self.app.assets, car_id)
             
             # 2. Determine state (Selected vs Hovered vs Idle)
@@ -142,7 +146,7 @@ class GarageMenu:
                 screen.blit(scaled, img_rect)
                 
             # 7. Draw Name
-            # Ensure we display string name (car_id is guaranteed string here due to calculation logic)
+            # Ensure we display string name
             name_surf = self.info_font.render(str(car_id), True, TEXT_DIM)
             name_rect = name_surf.get_rect(midtop=(rect.centerx, rect.bottom + 8))
             screen.blit(name_surf, name_rect)

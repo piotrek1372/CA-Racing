@@ -12,15 +12,16 @@ class Player:
         self.current_car = player_data['player'].get('current_car')
         
         # Validation and Fix: Ensure current_car is a String ID, not a Dict object
+        # The save file might store the full object or just the ID. We want the ID string.
         if isinstance(self.current_car, dict):
-             self.current_car = self.current_car.get('name')
+             self.current_car = self.current_car.get('model_id') or self.current_car.get('name')
 
-        # Fallback: If no car selected, pick first from garage
+        # Fallback: If no car selected (or it was null), pick first from garage
         if not self.current_car and self.garage:
             first_car = self.garage[0]
-            # Handle if garage contains dict objects
+            # Handle if garage contains dict objects (structure: {"model_id": "car_0", ...})
             if isinstance(first_car, dict):
-                self.current_car = first_car.get('name')
+                self.current_car = first_car.get('model_id') or first_car.get('name')
             else:
                 self.current_car = first_car
         
@@ -41,7 +42,9 @@ class Player:
         # Iterate to check ownership regardless of data structure
         for item in self.garage:
             if isinstance(item, dict):
-                if item.get('name') == car_id:
+                # Check match against model_id (preferred) or name
+                item_id = item.get('model_id') or item.get('name')
+                if item_id == car_id:
                     found = True
                     break
             else:

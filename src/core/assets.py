@@ -33,7 +33,8 @@ def load_sound(filename):
 def get_car_sprite(assets, car_id):
     """
     Extracts a specific car sprite from the 6x3 tilemap based on car_id string (e.g., 'car_5').
-    Now robust: handles car_id being a dict (object) or a string.
+    Robust: handles car_id being a dict (object) or a string.
+    Checks for 'model_id' first, then 'name'.
     """
     if 'cars' not in assets or not assets['cars']:
         return None
@@ -43,7 +44,7 @@ def get_car_sprite(assets, car_id):
 
     # FIX: Handle case where car_id is passed as a full dictionary object
     if isinstance(car_id, dict):
-        car_id = car_id.get('name', '')
+        car_id = car_id.get('model_id') or car_id.get('name', '')
         
     if not isinstance(car_id, str):
         return None
