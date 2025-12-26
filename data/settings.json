@@ -3,5 +3,7 @@
     "fullscreen": true,
     "max_fps": 144,
     "quality": "HIGH",
-    "language": "pl"
+    "language": "pl",
+    "vol_music": 50,
+    "vol_sfx": 100
 }

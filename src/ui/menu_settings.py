@@ -24,11 +24,44 @@ class GlobalSettingsMenu:
             (self.app.lang.get("settings_audio"), self.init_audio_view),
             (self.app.lang.get("settings_graphics"), self.init_graphics_view),
             (self.app.lang.get("settings_language"), self.init_language_view),
-            (self.app.lang.get("menu_back"), self.return_callback, ACCENT_RED)
+            (self.app.lang.get("menu_back"), self._on_back, ACCENT_RED)
         ]
         for i, (txt, act, *c) in enumerate(opts):
-            self.buttons.append(Button(txt, (cx, y + i*gap), act, custom_color=c[0] if c else None))
+            self.buttons.append(Button(txt, (cx, y + i*gap), act, app=self.app, custom_color=c[0] if c else None))
 
+    def _on_back(self):
+        self.app.audio.play_sfx('ui_back')
+        self.return_callback()
+
+    # --- AUDIO SETTINGS ---
+    def init_audio_view(self):
+        self.current_state = 'AUDIO'
+        self.buttons = []
+        cx = self._get_cx()
+        y, gap = 250, 70
+        
+        # Audio Logic
+        vol_m = int(self.app.audio.music_volume * 100)
+        vol_s = int(self.app.audio.sfx_volume * 100)
+        
+        self.buttons.append(Button(f"{self.app.lang.get('audio_music')}: {vol_m}%", (cx, y), self.cycle_music_vol, app=self.app))
+        self.buttons.append(Button(f"{self.app.lang.get('audio_sfx')}: {vol_s}%", (cx, y+gap), self.cycle_sfx_vol, app=self.app))
+        self.buttons.append(Button(self.app.lang.get("menu_back"), (cx, y+gap*2), self.init_main_view, app=self.app, custom_color=ACCENT_RED))
+
+    def cycle_music_vol(self):
+        curr = int(self.app.audio.music_volume * 100)
+        nxt = (curr + 25) if curr < 100 else 0
+        self.app.audio.set_music_volume(nxt)
+        self.init_audio_view() # Refresh text
+
+    def cycle_sfx_vol(self):
+        curr = int(self.app.audio.sfx_volume * 100)
+        nxt = (curr + 25) if curr < 100 else 0
+        self.app.audio.set_sfx_volume(nxt)
+        self.app.audio.play_sfx('ui_select') # Preview sound
+        self.init_audio_view()
+
+    # --- GRAPHICS SETTINGS (Keep existing logic, add sound to buttons) ---
     def init_graphics_view(self):
         self.current_state = 'GRAPHICS'
         self.buttons = []
@@ -36,45 +69,42 @@ class GlobalSettingsMenu:
         y, gap = 150, 70
         gs = self.app.global_settings
 
-        # Res
         res_idx = gs.get("resolution_idx", 0)
         curr_res = RESOLUTIONS[res_idx] if res_idx < len(RESOLUTIONS) else RESOLUTIONS[0]
-        self.buttons.append(Button(f"{self.app.lang.get('gfx_resolution')}: {curr_res[0]}x{curr_res[1]}", (cx, y), self.cycle_res))
-        # FS
-        fs_txt = self.app.lang.get("val_on") if gs.get("fullscreen") else self.app.lang.get("val_off")
-        self.buttons.append(Button(f"{self.app.lang.get('gfx_fullscreen')}: {fs_txt}", (cx, y+gap), self.toggle_fs))
-        # FPS
-        self.buttons.append(Button(f"{self.app.lang.get('gfx_fps')}: {gs.get('max_fps')}", (cx, y+gap*2), self.cycle_fps))
-        # Quality
-        q = gs.get("quality", "HIGH")
-        self.buttons.append(Button(f"{self.app.lang.get('gfx_quality')}: {self.app.lang.get(f'quality_{q.lower()}')}", (cx, y+gap*3), self.cycle_qual))
-        
-        self.buttons.append(Button(self.app.lang.get("menu_back"), (cx, y+gap*5), self.init_main_view, ACCENT_RED))
+        self.buttons.append(Button(f"{self.app.lang.get('gfx_resolution')}: {curr_res[0]}x{curr_res[1]}", (cx, y), self.cycle_res, app=self.app))
 
-    def _save(self):
+        fs_txt = self.app.lang.get("val_on") if gs.get("fullscreen") else self.app.lang.get("val_off")
+        self.buttons.append(Button(f"{self.app.lang.get('gfx_fullscreen')}: {fs_txt}", (cx, y+gap), self.toggle_fs, app=self.app))
+
+        self.buttons.append(Button(f"{self.app.lang.get('gfx_fps')}: {gs.get('max_fps')}", (cx, y+gap*2), self.cycle_fps, app=self.app))
+
+        q = gs.get("quality", "HIGH")
+        q_str = self.app.lang.get(f"quality_{q.lower()}")
+        self.buttons.append(Button(f"{self.app.lang.get('gfx_quality')}: {q_str}", (cx, y+gap*3), self.cycle_qual, app=self.app))
+        
+        self.buttons.append(Button(self.app.lang.get("menu_back"), (cx, y+gap*5), self.init_main_view, app=self.app, custom_color=ACCENT_RED))
+
+    def _save_gfx(self):
         self.app.apply_graphics(self.app.global_settings)
         self.app.data_manager.save_global_settings(self.app.global_settings)
         self.init_graphics_view()
 
     def cycle_res(self):
         self.app.global_settings["resolution_idx"] = (self.app.global_settings.get("resolution_idx", 0) + 1) % len(RESOLUTIONS)
-        self._save()
+        self._save_gfx()
     def toggle_fs(self):
         self.app.global_settings["fullscreen"] = not self.app.global_settings.get("fullscreen")
-        self._save()
+        self._save_gfx()
     def cycle_fps(self):
         curr = self.app.global_settings.get("max_fps", 60)
         self.app.global_settings["max_fps"] = FPS_LIMITS[(FPS_LIMITS.index(curr) + 1) % len(FPS_LIMITS)]
-        self._save()
+        self._save_gfx()
     def cycle_qual(self):
         modes = ["LOW", "MED", "HIGH"]
         self.app.global_settings["quality"] = modes[(modes.index(self.app.global_settings.get("quality","HIGH"))+1)%len(modes)]
-        self._save()
+        self._save_gfx()
 
-    def init_audio_view(self):
-        # Placeholder
-        self.buttons = [Button(self.app.lang.get("menu_back"), (self._get_cx(), 400), self.init_main_view, ACCENT_RED)]
-
+    # --- LANGUAGE SETTINGS ---
     def init_language_view(self):
         self.current_state = 'LANGUAGE'
         self.buttons = []
@@ -83,8 +113,8 @@ class GlobalSettingsMenu:
         langs = [("English", "en"), ("Polski", "pl"), ("Deutsch", "de"), ("Español", "es"), ("Français", "fr"), ("Português", "pt")]
         
         for i, (nm, code) in enumerate(langs):
-            self.buttons.append(Button(nm, (cx, y + i*gap), lambda c=code: self.change_lang(c)))
-        self.buttons.append(Button(self.app.lang.get("menu_back"), (cx, y + len(langs)*gap + 20), self.init_main_view, ACCENT_RED))
+            self.buttons.append(Button(nm, (cx, y + i*gap), lambda c=code: self.change_lang(c), app=self.app))
+        self.buttons.append(Button(self.app.lang.get("menu_back"), (cx, y + len(langs)*gap + 20), self.init_main_view, app=self.app, custom_color=ACCENT_RED))
 
     def change_lang(self, code):
         self.app.lang.load_language(code)
@@ -114,11 +144,15 @@ class PlayerSettingsMenu:
 
     def init_ui(self):
         cx = self.app.screen.get_width() // 2
-        self.input_box = InputBox((cx, 250), self.player.name)
+        self.input_box = InputBox((cx, 250), self.player.name, app=self.app)
         self.buttons = [
-            Button(self.app.lang.get("btn_save"), (cx, 350), self.save_name, ACCENT_GREEN),
-            Button(self.app.lang.get("menu_back"), (cx, 450), self.return_cb, ACCENT_RED)
+            Button(self.app.lang.get("btn_save"), (cx, 350), self.save_name, app=self.app, custom_color=ACCENT_GREEN),
+            Button(self.app.lang.get("menu_back"), (cx, 450), self._on_back, app=self.app, custom_color=ACCENT_RED)
         ]
+
+    def _on_back(self):
+        self.app.audio.play_sfx('ui_back')
+        self.return_cb()
 
     def save_name(self):
         if self.input_box.text: self.player.set_name(self.input_box.text)

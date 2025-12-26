@@ -30,7 +30,8 @@ class GameSession:
             ("hub_main_menu", self.exit, ACCENT_RED)
         ]
         for i, (k, act, col) in enumerate(opts):
-            self.buttons.append(Button(self.app.lang.get(k), (cx, y+i*gap), act, custom_color=col))
+            # Pass self.app for audio
+            self.buttons.append(Button(self.app.lang.get(k), (cx, y+i*gap), act, app=self.app, custom_color=col))
 
     def set_state(self, st):
         self.state = st

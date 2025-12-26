@@ -4,13 +4,17 @@ from src.constants import *
 from src.core.data_manager import DataManager
 from src.core.locale import LanguageManager
 from src.core.assets import load_game_assets
+from src.core.audio import AudioManager # NEW
 from src.ui.menu_main import MainMenu
 from src.ui.menu_settings import GlobalSettingsMenu
 from src.game.session import GameSession
 
 class Main:
     def __init__(self):
+        # 1. Init Pygame & Mixer
         pg.init()
+        pg.mixer.init()
+        
         self.data_manager = DataManager()
         self.global_settings = self.data_manager.load_global_settings()
         
@@ -23,10 +27,16 @@ class Main:
         self.clock = pg.time.Clock()
         self.running = True
         
+        # 2. Load Assets
         try:
             self.assets = load_game_assets()
-        except:
-            self.assets = {}
+        except Exception as e:
+            print(f"[MAIN] Critical Asset Error: {e}")
+            self.assets = {'sfx': {}, 'music': {}}
+            
+        # 3. Init Audio Manager & Start Music
+        self.audio = AudioManager(self)
+        self.audio.play_music('main_theme')
             
         self.state = 'MENU'
         self.menu = MainMenu(self)
@@ -51,6 +61,7 @@ class Main:
     def close_session(self):
         self.session = None
         self.state = 'MENU'
+        self.audio.play_music('main_theme') # Resume main music
         self.menu.init_main_view()
 
     def open_global_settings(self):
@@ -71,7 +82,6 @@ class Main:
                 if e.type == pg.QUIT: self.running = False
             
             if self.state == 'MENU':
-                self.menu.update(events[0]) if events else None
                 for e in events: self.menu.update(e)
                 self.menu.draw(self.screen)
             elif self.state == 'SETTINGS':

@@ -27,7 +27,7 @@ class MainMenu:
         ]
 
         for i, (txt, act, col) in enumerate(opts):
-            self.buttons.append(Button(txt, (cx, start_y + i*gap), act, custom_color=col))
+            self.buttons.append(Button(txt, (cx, start_y + i*gap), act, app=self.app, custom_color=col))
 
     def init_save_view(self):
         self.state = "saves"
@@ -47,9 +47,9 @@ class MainMenu:
             col = ACCENT_BLUE if occupied else ACCENT_GREEN
             
             action = lambda slot=i: self.app.start_game_session(slot)
-            self.buttons.append(Button(btn_txt, (cx, start_y + (i-1)*gap), action, custom_color=col))
+            self.buttons.append(Button(btn_txt, (cx, start_y + (i-1)*gap), action, app=self.app, custom_color=col))
             
-        self.buttons.append(Button(self.app.lang.get("menu_back"), (cx, start_y + 3*gap + 20), self.init_main_view))
+        self.buttons.append(Button(self.app.lang.get("menu_back"), (cx, start_y + 3*gap + 20), self.init_main_view, app=self.app))
 
     def go_to_saves(self):
         self.init_save_view()

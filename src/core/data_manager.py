@@ -56,8 +56,20 @@ class DataManager:
             "fullscreen": False,
             "max_fps": 60,
             "quality": "HIGH",
-            "language": "en"
+            "language": "en",
+            "vol_music": 50, # NEW
+            "vol_sfx": 50    # NEW
         }
+        
+        if not os.path.exists(self.global_settings_path):
+            self._save_json(self.global_settings_path, default_settings)
+            return default_settings
+        
+        data = self._load_json(self.global_settings_path)
+        for key, val in default_settings.items():
+            if key not in data:
+                data[key] = val
+        return data
         
         if not os.path.exists(self.global_settings_path):
             self._save_json(self.global_settings_path, default_settings)
