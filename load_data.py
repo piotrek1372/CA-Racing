@@ -48,6 +48,20 @@ class Data:
         path = os.path.join(self.saves_dir, f'save_{slot_id}', 'player_state.json')
         return self._load_json(path)
 
+    # --- TA METODA BYŁA BRAKUJĄCA ---
+    def save_player_state(self, slot_id, data):
+        """Saves current player state to JSON."""
+        path = os.path.join(self.saves_dir, f'save_{slot_id}', 'player_state.json')
+        try:
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4)
+            print(f"[DATA] Game saved to Slot {slot_id}")
+            return True
+        except Exception as e:
+            print(f"[DATA] Error saving game: {e}")
+            return False
+    # --------------------------------
+
     def _load_json(self, path):
         try:
             with open(path, mode='r', encoding='utf-8') as f:
