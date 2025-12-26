@@ -7,6 +7,7 @@ def get_asset_path(category, filename):
     return os.path.join(ASSETS_DIR, category, filename)
 
 def load_image(filename, alpha=True):
+    """Loads an image from assets/images."""
     path = get_asset_path('images', filename)
     if not os.path.exists(path):
         print(f"[ASSETS] ERROR: File not found: {path}")
@@ -19,16 +20,55 @@ def load_image(filename, alpha=True):
         return None
 
 def load_sound(filename):
-    """Loads a sound effect file."""
+    """Loads a sound effect file from assets/sounds/sfx."""
     path = get_asset_path(os.path.join('sounds', 'sfx'), filename)
     if not os.path.exists(path):
-        print(f"[ASSETS] Warning: SFX file not found: {path}")
+        # Silent warning to avoid console spam if files are missing during dev
+        # print(f"[ASSETS] Warning: SFX file not found: {path}")
         return None
     try:
         return pg.mixer.Sound(path)
     except pg.error as e:
         print(f"[ASSETS] Error loading sound {filename}: {e}")
         return None
+
+def get_car_sprite(assets, car_id):
+    """
+    Extracts a specific car sprite from the 6x3 tilemap based on car_id string (e.g., 'car_5').
+    Assumes car-tilemap.png is a grid of 6 columns and 3 rows.
+    """
+    if 'cars' not in assets or not assets['cars']:
+        return None
+    
+    try:
+        # Extract index from ID (e.g., "car_5" -> 5)
+        index = int(car_id.split('_')[1])
+    except (IndexError, ValueError):
+        print(f"[ASSETS] Invalid car ID format: {car_id}")
+        return None
+
+    sheet = assets['cars']
+    sheet_w, sheet_h = sheet.get_size()
+    
+    # Grid configuration: 6 columns, 3 rows
+    cols = 6
+    rows = 3
+    
+    tile_w = sheet_w // cols
+    tile_h = sheet_h // rows
+    
+    # Calculate position based on index (0 to 17)
+    # Row is integer division, Column is modulo
+    row = index // cols
+    col = index % cols
+    
+    # Safety check
+    if row >= rows:
+        print(f"[ASSETS] Car index {index} out of bounds for sprite sheet.")
+        return None
+        
+    rect = pg.Rect(col * tile_w, row * tile_h, tile_w, tile_h)
+    return sheet.subsurface(rect)
 
 def load_game_assets():
     """Loads all game resources including images and sounds."""
