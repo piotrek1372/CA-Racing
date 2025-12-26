@@ -30,3 +30,18 @@ class Player:
             self.money -= amount
             return True
         return False
+
+    def to_dict(self):
+        """
+        Converts the Player object back to a dictionary for JSON saving.
+        """
+        return {
+            "player": {
+                "name": self.name,
+                "money": self.money,
+                "level": self.level,
+                "exp": self.exp
+            },
+            "garage": self.garage,
+            "inventory": self.inventory
+        }

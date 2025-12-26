@@ -17,10 +17,12 @@ class GameSession:
         self.data_manager = main_app.data_manager
         self.lang = main_app.lang
         
+        # Load data
         self.game_db = self.data_manager.load_game_data()
         self.player_save_data = self.data_manager.load_player_state(slot_id)
         self.player = Player(self.player_save_data, self.game_db)
         
+        # UI Setup
         self.font_header = pg.font.SysFont('Consolas', 32, bold=True)
         self.font_ui = pg.font.SysFont('Consolas', 24)
         
@@ -41,6 +43,7 @@ class GameSession:
             (self.lang.get("hub_garage"), lambda: self.change_state('GARAGE'), None),
             (self.lang.get("hub_shop"), lambda: self.change_state('SHOP'), None),
             (self.lang.get("hub_settings"), lambda: self.change_state('SETTINGS'), None),
+            # Przycisk wyjścia z automatycznym zapisem
             (self.lang.get("hub_main_menu"), self.exit_to_main_menu, ACCENT_RED)
         ]
         
@@ -52,6 +55,21 @@ class GameSession:
         self.state = new_state
 
     def exit_to_main_menu(self):
+        """Saves the game automatically and returns to the Main Menu."""
+        print(f"[GAME] Auto-saving to Slot {self.slot_id}...")
+        
+        # 1. Convert player object to dict
+        save_data = self.player.to_dict()
+        
+        # 2. Save to disk using Data Manager
+        success = self.data_manager.save_player_state(self.slot_id, save_data)
+        
+        if success:
+            print("[GAME] Save successful.")
+        else:
+            print("[GAME] ERROR: Could not save game!")
+
+        # 3. Close session
         self.app.close_game_session()
 
     def update(self, events):
@@ -92,8 +110,8 @@ class GameSession:
     def draw_hub(self):
         for btn in self.buttons:
             btn.draw(self.screen)
+        # Wizualizacja auta w menu (Hub)
         if 'cars' in self.assets and self.assets['cars']:
-            # Drawing a car (example)
             car_sprite = self.assets['cars'].subsurface((0, 0, 64, 64))
             car_scaled = pg.transform.scale(car_sprite, (128, 128))
             self.screen.blit(car_scaled, (100, 250))
@@ -112,7 +130,6 @@ class Main:
         self.running = True
         self.state = 'MENU'
         
-        # 1. Initialize Language (no argument = auto-detection)
         self.lang = LanguageManager() 
         
         try:
