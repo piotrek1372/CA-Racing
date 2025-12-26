@@ -1,0 +1,19 @@
+{
+    "menu_play": "JOGAR",
+    "menu_options": "OPÇÕES",
+    "menu_exit": "SAIR",
+    "menu_back": "VOLTAR",
+    "slot_load": "CARREGAR",
+    "slot_new": "NOVO JOGO",
+    "slot_prefix": "SLOT",
+    "title_main": "CA RACING",
+    "title_slots": "SELECIONAR SLOT",
+    "hub_race": "CORRIDA",
+    "hub_garage": "GARAGEM",
+    "hub_shop": "LOJA",
+    "hub_settings": "CONFIGURAÇÕES",
+    "hub_main_menu": "MENU PRINCIPAL",
+    "info_driver": "PILOTO",
+    "info_money": "DINHEIRO",
+    "msg_esc": "Pressione ESC para voltar"
+}

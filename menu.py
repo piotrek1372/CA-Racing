@@ -1,7 +1,6 @@
 import pygame as pg
 from constants import *
 
-# ... Klasa Button bez zmian ...
 class Button:
     def __init__(self, text, center_pos, action, custom_color=None):
         self.text = text
@@ -12,15 +11,23 @@ class Button:
         self.color_hover = BUTTON_HOVER_COLOR
         self.text_color = TEXT_MAIN
         self.border_color = TEXT_DIM
+        
+        # Calculate size
         text_width, text_height = self.font.size(self.text)
         padding_x, padding_y = 30, 15
         self.width = text_width + padding_x
         self.height = text_height + padding_y
+        
+        # Position
         self.rect = pg.Rect(0, 0, self.width, self.height)
         self.rect.center = center_pos
+        
+        # Shadow
         self.shadow_rect = self.rect.copy()
         self.shadow_rect.x += 3
         self.shadow_rect.y += 3
+        
+        # Prerender text
         self.text_surf = self.font.render(self.text, True, self.text_color)
         self.text_rect = self.text_surf.get_rect(center=self.rect.center)
 
@@ -28,6 +35,8 @@ class Button:
         mouse_pos = pg.mouse.get_pos()
         is_hovered = self.rect.collidepoint(mouse_pos)
         current_color = self.color_hover if is_hovered else self.color_idle
+        
+        # Draw shadow, body, and border
         pg.draw.rect(screen, (15, 15, 20), self.shadow_rect, border_radius=8)
         pg.draw.rect(screen, current_color, self.rect, border_radius=8)
         pg.draw.rect(screen, self.border_color, self.rect, 2, border_radius=8)
@@ -55,7 +64,7 @@ class Menu:
         start_y = 250
         gap_y = 70
 
-        # TŁUMACZENIE PRZYCISKÓW
+        # Button translation
         options = [
             (self.app.lang.get("menu_play"), self.go_to_saves, None),
             (self.app.lang.get("menu_options"), lambda: print("TODO Options"), None),
@@ -76,7 +85,7 @@ class Menu:
         
         slots_status = self.app.data_manager.check_save_slots()
         
-        # POBIERANIE PREFIXU I STANÓW
+        # Get prefix and states
         prefix = self.app.lang.get("slot_prefix")
         txt_load = self.app.lang.get("slot_load")
         txt_new = self.app.lang.get("slot_new")
@@ -95,7 +104,7 @@ class Menu:
             pos = (center_x, start_y + (i-1) * gap_y)
             self.buttons.append(Button(btn_text, pos, action, custom_color=color))
             
-        # Przycisk POWRÓT
+        # Back button
         back_text = self.app.lang.get("menu_back")
         back_pos = (center_x, start_y + 3 * gap_y + 20)
         self.buttons.append(Button(back_text, back_pos, self.init_main_menu))
@@ -110,7 +119,7 @@ class Menu:
     def draw(self, screen):
         screen.fill(BG_COLOR)
         
-        # Tytuł też tłumaczony
+        # Title is also translated
         key = "title_slots" if self.state == "saves" else "title_main"
         title_text = self.app.lang.get(key)
         

@@ -1,0 +1,19 @@
+{
+    "menu_play": "JOUER",
+    "menu_options": "OPTIONS",
+    "menu_exit": "QUITTER",
+    "menu_back": "RETOUR",
+    "slot_load": "CHARGER",
+    "slot_new": "NOUVELLE PARTIE",
+    "slot_prefix": "EMPLACEMENT",
+    "title_main": "CA RACING",
+    "title_slots": "CHOISIR EMPLACEMENT",
+    "hub_race": "COURSE",
+    "hub_garage": "GARAGE",
+    "hub_shop": "BOUTIQUE",
+    "hub_settings": "PARAMÈTRES",
+    "hub_main_menu": "MENU PRINCIPAL",
+    "info_driver": "PILOTE",
+    "info_money": "ARGENT",
+    "msg_esc": "Appuyez sur ESC pour revenir"
+}

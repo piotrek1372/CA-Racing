@@ -28,7 +28,7 @@ class GameSession:
         self.buttons = []
         self.init_hub_ui()
         
-        print(f"[GAME] Rozpoczęto sesję. Gracz: {self.player.name}")
+        print(f"[GAME] Session started. Player: {self.player.name}")
 
     def init_hub_ui(self):
         self.buttons = []
@@ -93,7 +93,7 @@ class GameSession:
         for btn in self.buttons:
             btn.draw(self.screen)
         if 'cars' in self.assets and self.assets['cars']:
-            # Rysowanie auta (przykładowe)
+            # Drawing a car (example)
             car_sprite = self.assets['cars'].subsurface((0, 0, 64, 64))
             car_scaled = pg.transform.scale(car_sprite, (128, 128))
             self.screen.blit(car_scaled, (100, 250))
@@ -112,7 +112,7 @@ class Main:
         self.running = True
         self.state = 'MENU'
         
-        # 1. Inicjalizacja Języka (bez argumentu = auto-wykrywanie)
+        # 1. Initialize Language (no argument = auto-detection)
         self.lang = LanguageManager() 
         
         try:

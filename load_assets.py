@@ -3,51 +3,51 @@ import os
 from constants import *
 
 def get_asset_path(filename):
-    """Pomocnicza funkcja generująca poprawną ścieżkę do pliku w folderze assets/images."""
-    # Pobierz folder, w którym znajduje się ten skrypt (load_assets.py)
+    """Helper function generating the correct path to a file in the assets/images folder."""
+    # Get the folder where this script (load_assets.py) is located
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    # Zbuduj pełną ścieżkę: current_dir/assets/images/filename
+    # Build full path: current_dir/assets/images/filename
     return os.path.join(current_dir, 'assets', 'images', filename)
 
 def load_image(filename, alpha=True):
-    """Ładuje obraz z folderu assets/images i konwertuje go dla wydajności."""
+    """Loads an image from assets/images and converts it for performance."""
     path = get_asset_path(filename)
     
-    # Sprawdź czy plik w ogóle istnieje
+    # Check if the file exists at all
     if not os.path.exists(path):
-        print(f"[ASSETS] BŁĄD: Nie znaleziono pliku: {path}")
+        print(f"[ASSETS] ERROR: File not found: {path}")
         return None
 
     try:
         img = pg.image.load(path)
         if alpha:
-            return img.convert_alpha()  # Dla aut i UI (przezroczystość)
+            return img.convert_alpha()  # For cars and UI (transparency)
         else:
-            return img.convert()        # Dla teł (szybciej)
+            return img.convert()        # For backgrounds (faster)
     except pg.error as e:
-        print(f"[ASSETS] Błąd Pygame przy ładowaniu {filename}: {e}")
+        print(f"[ASSETS] Pygame error while loading {filename}: {e}")
         return None
 
 def load_game_assets():
-    """Główna funkcja ładująca wszystkie zasoby do słownika."""
+    """Main function loading all resources into a dictionary."""
     assets = {}
     
-    print("[ASSETS] Rozpoczynam ładowanie zasobów...")
+    print("[ASSETS] Starting resource loading...")
 
-    # 1. Ładowanie Aut (zakładamy, że masz car-tilemap.png)
+    # 1. Loading Cars (assuming you have car-tilemap.png)
     assets['cars'] = load_image('car-tilemap.png', alpha=True)
     
-    # 2. Ładowanie Map
+    # 2. Loading Maps
     assets['maps'] = []
-    # Przykład: map_0.png znajduje się w podfolderze maps
-    # Używamy os.path.join, aby połączyć 'maps' i 'map_0.png'
+    # Example: map_0.png is located in the maps subfolder
+    # Using os.path.join to combine 'maps' and 'map_0.png'
     map_path = os.path.join('maps', 'map_0.png')
     map_img = load_image(map_path, alpha=False)
     
     if map_img:
         assets['maps'].append(map_img)
     
-    # Wypisz podsumowanie
-    print(f"[ASSETS] Załadowano: {len(assets.keys())} kategorie zasobów.")
+    # Print summary
+    print(f"[ASSETS] Loaded: {len(assets.keys())} resource categories.")
     
     return assets
