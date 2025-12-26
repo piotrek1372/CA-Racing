@@ -23,8 +23,6 @@ def load_sound(filename):
     """Loads a sound effect file from assets/sounds/sfx."""
     path = get_asset_path(os.path.join('sounds', 'sfx'), filename)
     if not os.path.exists(path):
-        # Silent warning to avoid console spam if files are missing during dev
-        # print(f"[ASSETS] Warning: SFX file not found: {path}")
         return None
     try:
         return pg.mixer.Sound(path)
@@ -35,14 +33,27 @@ def load_sound(filename):
 def get_car_sprite(assets, car_id):
     """
     Extracts a specific car sprite from the 6x3 tilemap based on car_id string (e.g., 'car_5').
-    Assumes car-tilemap.png is a grid of 6 columns and 3 rows.
+    Now robust: handles car_id being a dict (object) or a string.
     """
     if 'cars' not in assets or not assets['cars']:
         return None
     
+    if not car_id:
+        return None
+
+    # FIX: Handle case where car_id is passed as a full dictionary object
+    if isinstance(car_id, dict):
+        car_id = car_id.get('name', '')
+        
+    if not isinstance(car_id, str):
+        return None
+
     try:
         # Extract index from ID (e.g., "car_5" -> 5)
-        index = int(car_id.split('_')[1])
+        parts = car_id.split('_')
+        if len(parts) < 2:
+            return None
+        index = int(parts[1])
     except (IndexError, ValueError):
         print(f"[ASSETS] Invalid car ID format: {car_id}")
         return None
@@ -57,8 +68,7 @@ def get_car_sprite(assets, car_id):
     tile_w = sheet_w // cols
     tile_h = sheet_h // rows
     
-    # Calculate position based on index (0 to 17)
-    # Row is integer division, Column is modulo
+    # Calculate position
     row = index // cols
     col = index % cols
     
@@ -85,8 +95,6 @@ def load_game_assets():
         assets['maps'].append(map_img)
         
     # --- AUDIO (SFX) ---
-    # License: JDSherbert (All files included are licensed for commercial & non-commercial projects)
-    # Mapping long filenames to short keys for ease of use
     sfx_map = {
         'ui_select': 'JDSherbert - Ultimate UI SFX Pack - Select - 1.ogg',
         'ui_click': 'JDSherbert - Ultimate UI SFX Pack - Select - 2.ogg',
@@ -105,7 +113,6 @@ def load_game_assets():
             assets['sfx'][key] = snd
             
     # --- MUSIC ---
-    # We store only paths for music to stream it
     music_dir = os.path.join(ASSETS_DIR, 'sounds', 'music')
     assets['music'] = {
         'main_theme': os.path.join(music_dir, 'Track 1.ogg'),

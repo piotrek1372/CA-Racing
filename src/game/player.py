@@ -11,11 +11,18 @@ class Player:
         # Determine current car (load from save or default to first in garage)
         self.current_car = player_data['player'].get('current_car')
         
-        # Validation: If current car is invalid or missing, pick first available
+        # Validation and Fix: Ensure current_car is a String ID, not a Dict object
+        if isinstance(self.current_car, dict):
+             self.current_car = self.current_car.get('name')
+
+        # Fallback: If no car selected, pick first from garage
         if not self.current_car and self.garage:
-            self.current_car = self.garage[0]
-        elif self.current_car not in self.garage and self.garage:
-             self.current_car = self.garage[0]
+            first_car = self.garage[0]
+            # Handle if garage contains dict objects
+            if isinstance(first_car, dict):
+                self.current_car = first_car.get('name')
+            else:
+                self.current_car = first_car
         
         self.game_db = game_db
 
@@ -25,8 +32,24 @@ class Player:
             self.name = new_name
 
     def set_current_car(self, car_id):
-        """Sets the active car if the player owns it. Returns True on success."""
-        if car_id in self.garage:
+        """
+        Sets the active car if the player owns it. 
+        Robust check: handles garage being list of strings OR list of dicts.
+        """
+        found = False
+        
+        # Iterate to check ownership regardless of data structure
+        for item in self.garage:
+            if isinstance(item, dict):
+                if item.get('name') == car_id:
+                    found = True
+                    break
+            else:
+                if item == car_id:
+                    found = True
+                    break
+        
+        if found:
             self.current_car = car_id
             return True
         return False
@@ -39,7 +62,7 @@ class Player:
                 "money": self.money,
                 "level": self.level,
                 "exp": self.exp,
-                "current_car": self.current_car  # Save selected car
+                "current_car": self.current_car  # Save selected car ID
             },
             "garage": self.garage,
             "inventory": self.inventory

@@ -17,7 +17,7 @@ class GarageMenu:
         self.title_font = pg.font.SysFont('Consolas', 50, bold=True)
         self.info_font = pg.font.SysFont('Consolas', 24)
         
-        # List of tuples: (pg.Rect, car_id) for click detection
+        # List of tuples: (pg.Rect, car_id_string)
         self.car_rects = [] 
         self.buttons = []
         
@@ -50,9 +50,12 @@ class GarageMenu:
         start_y = 180
         gap_x = 220
         gap_y = 200
-        cols_per_row = 4 # How many cars to show per row in the UI
+        cols_per_row = 4
         
-        for i, car_id in enumerate(self.player.garage):
+        for i, item in enumerate(self.player.garage):
+            # FIX: Ensure we have the String ID, even if item is a Dict object
+            car_id = item.get('name') if isinstance(item, dict) else item
+            
             row = i // cols_per_row
             col = i % cols_per_row
             
@@ -98,7 +101,7 @@ class GarageMenu:
         mouse_pos = pg.mouse.get_pos()
         
         for rect, car_id in self.car_rects:
-            # 1. Get Sprite
+            # 1. Get Sprite (Now safely handled in assets.py)
             sprite = get_car_sprite(self.app.assets, car_id)
             
             # 2. Determine state (Selected vs Hovered vs Idle)
@@ -133,15 +136,14 @@ class GarageMenu:
 
             # 6. Draw Scaled Sprite
             if sprite:
-                # Original sprites are small, scale them up for menu
-                # Assuming tile is ~64px wide (depends on sheet), scaling to ~128px
                 target_size = (128, 128) 
                 scaled = pg.transform.scale(sprite, target_size)
                 img_rect = scaled.get_rect(center=rect.center)
                 screen.blit(scaled, img_rect)
                 
             # 7. Draw Name
-            name_surf = self.info_font.render(car_id, True, TEXT_DIM)
+            # Ensure we display string name (car_id is guaranteed string here due to calculation logic)
+            name_surf = self.info_font.render(str(car_id), True, TEXT_DIM)
             name_rect = name_surf.get_rect(midtop=(rect.centerx, rect.bottom + 8))
             screen.blit(name_surf, name_rect)
 

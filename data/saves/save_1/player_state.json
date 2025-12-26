@@ -3,7 +3,8 @@
         "name": "Piotrek",
         "money": 500,
         "level": 1,
-        "exp": 0
+        "exp": 0,
+        "current_car": null
     },
     "garage": [
         {
