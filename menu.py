@@ -1,6 +1,10 @@
 import pygame as pg
 from constants import *
 
+# Note: The Button class is imported by settings.py, so we keep it here.
+# Ideally, UI elements should be in a separate ui.py file to avoid circular imports,
+# but for this structure, we keep it here.
+
 class Button:
     def __init__(self, text, center_pos, action, custom_color=None):
         self.text = text
@@ -51,12 +55,13 @@ class Button:
 class Menu:
     def __init__(self, main_app):
         self.app = main_app
-        self.state = "main"
+        self.state = "main" # 'main', 'saves'
         self.buttons = []
         self.title_font = pg.font.SysFont('Consolas', 60, bold=True)
         self.init_main_menu()
 
     def init_main_menu(self):
+        """Initializes main menu buttons."""
         self.state = "main"
         self.buttons = []
         
@@ -64,10 +69,10 @@ class Menu:
         start_y = 250
         gap_y = 70
 
-        # Button translation
         options = [
             (self.app.lang.get("menu_play"), self.go_to_saves, None),
-            (self.app.lang.get("menu_options"), lambda: print("TODO Options"), None),
+            # Direct link to the shared Settings logic in Main
+            (self.app.lang.get("menu_options"), self.app.open_settings_from_menu, None),
             (self.app.lang.get("menu_exit"), self.app.quit_game, ACCENT_RED)
         ]
 
@@ -76,6 +81,7 @@ class Menu:
             self.buttons.append(Button(text, pos, action, custom_color=color))
 
     def init_save_menu(self):
+        """Initializes save slot buttons."""
         self.state = "saves"
         self.buttons = []
         
@@ -85,7 +91,6 @@ class Menu:
         
         slots_status = self.app.data_manager.check_save_slots()
         
-        # Get prefix and states
         prefix = self.app.lang.get("slot_prefix")
         txt_load = self.app.lang.get("slot_load")
         txt_new = self.app.lang.get("slot_new")
@@ -104,7 +109,6 @@ class Menu:
             pos = (center_x, start_y + (i-1) * gap_y)
             self.buttons.append(Button(btn_text, pos, action, custom_color=color))
             
-        # Back button
         back_text = self.app.lang.get("menu_back")
         back_pos = (center_x, start_y + 3 * gap_y + 20)
         self.buttons.append(Button(back_text, back_pos, self.init_main_menu))
@@ -119,7 +123,6 @@ class Menu:
     def draw(self, screen):
         screen.fill(BG_COLOR)
         
-        # Title is also translated
         key = "title_slots" if self.state == "saves" else "title_main"
         title_text = self.app.lang.get(key)
         

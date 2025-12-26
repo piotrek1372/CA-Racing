@@ -15,5 +15,14 @@
     "hub_main_menu": "HAUPTMENÜ",
     "info_driver": "FAHRER",
     "info_money": "GELD",
-    "msg_esc": "Drücke ESC zum Zurückkehren"
+    "msg_esc": "Drücke ESC zum Zurückkehren",
+    "settings_title": "EINSTELLUNGEN",
+    "settings_audio": "AUDIO",
+    "settings_graphics": "GRAFIK",
+    "settings_language": "SPRACHE",
+    "audio_sfx": "SFX Lautstärke",
+    "audio_music": "Musik Lautstärke",
+    "gfx_fps": "Max FPS",
+    "gfx_quality": "Qualität",
+    "lang_select": "Sprache wählen"
 }

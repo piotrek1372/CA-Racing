@@ -15,5 +15,14 @@
     "hub_main_menu": "MENU GŁÓWNE",
     "info_driver": "KIEROWCA",
     "info_money": "KASA",
-    "msg_esc": "Wciśnij ESC aby wrócić"
+    "msg_esc": "Wciśnij ESC aby wrócić",
+    "settings_title": "USTAWIENIA",
+    "settings_audio": "DŹWIĘK",
+    "settings_graphics": "GRAFIKA",
+    "settings_language": "JĘZYK",
+    "audio_sfx": "Głośność Efektów",
+    "audio_music": "Głośność Muzyki",
+    "gfx_fps": "Limit FPS",
+    "gfx_quality": "Jakość",
+    "lang_select": "Wybierz Język"
 }

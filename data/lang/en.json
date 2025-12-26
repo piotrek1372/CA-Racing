@@ -15,5 +15,14 @@
     "hub_main_menu": "MAIN MENU",
     "info_driver": "DRIVER",
     "info_money": "MONEY",
-    "msg_esc": "Press ESC to return"
+    "msg_esc": "Press ESC to return",
+    "settings_title": "SETTINGS",
+    "settings_audio": "AUDIO",
+    "settings_graphics": "GRAPHICS",
+    "settings_language": "LANGUAGE",
+    "audio_sfx": "SFX Volume",
+    "audio_music": "Music Volume",
+    "gfx_fps": "Max FPS",
+    "gfx_quality": "Quality",
+    "lang_select": "Select Language"
 }

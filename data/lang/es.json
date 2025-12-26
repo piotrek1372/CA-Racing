@@ -15,5 +15,14 @@
     "hub_main_menu": "MENÚ PRINCIPAL",
     "info_driver": "PILOTO",
     "info_money": "DINERO",
-    "msg_esc": "Presiona ESC para volver"
+    "msg_esc": "Presiona ESC para volver",
+    "settings_title": "AJUSTES",
+    "settings_audio": "AUDIO",
+    "settings_graphics": "GRÁFICOS",
+    "settings_language": "IDIOMA",
+    "audio_sfx": "Volumen Efectos",
+    "audio_music": "Volumen Música",
+    "gfx_fps": "FPS Máx",
+    "gfx_quality": "Calidad",
+    "lang_select": "Seleccionar Idioma"
 }
