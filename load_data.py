@@ -41,14 +41,15 @@ class Data:
             return False
 
     def load_game_data(self):
+        """Loads static game data (cars, parts specs)."""
         path = os.path.join(self.template_dir, 'game_data.json')
         return self._load_json(path)
 
     def load_player_state(self, slot_id):
+        """Loads dynamic player state from a specific slot."""
         path = os.path.join(self.saves_dir, f'save_{slot_id}', 'player_state.json')
         return self._load_json(path)
 
-    # --- TA METODA BYŁA BRAKUJĄCA ---
     def save_player_state(self, slot_id, data):
         """Saves current player state to JSON."""
         path = os.path.join(self.saves_dir, f'save_{slot_id}', 'player_state.json')
@@ -60,9 +61,9 @@ class Data:
         except Exception as e:
             print(f"[DATA] Error saving game: {e}")
             return False
-    # --------------------------------
 
     def _load_json(self, path):
+        """Helper to safely load JSON files."""
         try:
             with open(path, mode='r', encoding='utf-8') as f:
                 return json.load(f)

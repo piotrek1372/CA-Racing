@@ -90,7 +90,6 @@ class GameSession:
                     if self.state != 'HUB':
                         self.change_state('HUB')
 
-    # --- THIS WAS MISSING ---
     def draw(self):
         """Main draw method for the Game Session."""
         self.screen.fill(BG_COLOR)
@@ -104,7 +103,6 @@ class GameSession:
         else:
             # Placeholder for other states (Race, Garage, etc.)
             self.draw_placeholder(f"{self.state} - {self.lang.get('msg_esc')}")
-    # ------------------------
 
     def draw_player_info(self):
         """Draws the top HUD bar."""
@@ -207,7 +205,12 @@ class Main:
             elif self.state == 'GAME':
                 if self.game_session:
                     self.game_session.update(events)
-                    self.game_session.draw() # <--- This line caused the error before
+                
+                # CRITICAL FIX: Check if game_session still exists AFTER update.
+                # The update() call might have triggered close_game_session(),
+                # setting self.game_session to None.
+                if self.game_session:
+                    self.game_session.draw()
 
             pg.display.flip()
             self.clock.tick(FPS)

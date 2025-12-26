@@ -28,7 +28,7 @@ class LanguageManager:
         self.current_lang = lang_code
         
         base_dir = os.path.dirname(os.path.abspath(__file__))
-        # Path fixed to point to 'data/lang' where json files are located
+        # Path to data/lang/{code}.json
         path = os.path.join(base_dir, "data", "lang", f"{lang_code}.json")
         
         try:
